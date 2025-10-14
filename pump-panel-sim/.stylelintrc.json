@@ -1,0 +1,19 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-class-pattern": null,
+    "property-no-vendor-prefix": [true, {
+      "ignoreProperties": ["appearance", "user-select"]
+    }],
+    "property-no-unknown": [true, {
+      "ignoreProperties": []
+    }],
+    "value-no-vendor-prefix": true,
+    "selector-no-vendor-prefix": true,
+    "at-rule-no-vendor-prefix": true
+  },
+  "ignoreFiles": [
+    "dist/**/*.css",
+    "node_modules/**/*.css"
+  ]
+}

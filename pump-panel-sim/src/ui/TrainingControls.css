@@ -1,0 +1,195 @@
+/**
+ * Training controls panel styles
+ */
+
+.training-controls {
+  position: fixed;
+  top: 4rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.training-toggle {
+  padding: 0.5rem 1rem;
+  background: rgba(0, 120, 200, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.training-toggle:hover {
+  background: rgba(0, 120, 200, 0.95);
+}
+
+.training-toggle:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.training-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  min-width: 220px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  animation: panelSlideIn 0.2s ease-out;
+}
+
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.training-section {
+  margin-bottom: 0.75rem;
+}
+
+.training-section:last-child {
+  margin-bottom: 0;
+}
+
+.training-section > label:first-child {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.training-section label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.training-section label:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.training-section select {
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.training-section select:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.training-section select:focus {
+  outline: none;
+  border-color: rgba(0, 120, 200, 0.8);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.training-section select option {
+  background: #1a1a1a;
+  color: white;
+}
+
+.training-section input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: rgba(0, 120, 200, 0.8);
+}
+
+.training-button {
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(58, 123, 213, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.training-button:hover {
+  background: rgba(58, 123, 213, 0.95);
+  transform: translateY(-1px);
+}
+
+.training-button:active {
+  transform: translateY(0);
+}
+
+.training-button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .training-controls {
+    top: 3.5rem;
+    right: 0.5rem;
+  }
+  
+  .training-toggle {
+    padding: 0.4rem 0.8rem;
+    font-size: 13px;
+  }
+  
+  .training-panel {
+    min-width: 200px;
+    padding: 0.75rem;
+  }
+  
+  .training-section label,
+  .training-section select {
+    font-size: 13px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .training-toggle {
+    border: 2px solid white;
+  }
+  
+  .training-panel {
+    border: 2px solid white;
+    background: black;
+  }
+  
+  .training-section select {
+    border: 2px solid white;
+  }
+}

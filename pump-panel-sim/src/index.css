@@ -1,0 +1,534 @@
+/**
+ * Global styles for the fire pump simulator
+ */
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  /* Prevent pull-to-refresh and overscroll on mobile */
+  overscroll-behavior: none;
+  /* Prevent text selection during touch interactions */
+  -webkit-user-select: none;
+  user-select: none;
+  /* Improve touch responsiveness */
+  -webkit-tap-highlight-color: transparent;
+  /* Disable callout on long-press */
+  -webkit-touch-callout: none;
+}
+
+body {
+  background-color: #0b0e17;
+  color: #fff;
+}
+
+/* Dark theme colors */
+:root {
+  --color-bg-primary: #0b0e17;
+  --color-bg-secondary: #1a1d2e;
+  --color-text-primary: #fff;
+  --color-text-secondary: #b4b4b4;
+  --color-accent: #0af;
+  --color-success: #0f0;
+  --color-warning: #fa0;
+  --color-danger: #f00;
+  --color-gauge-bg: #f0f0f0;
+  --color-gauge-text: #000;
+}
+
+/* Canvas styles */
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none; /* Prevent default touch behaviors */
+  /* Prevent image drag on touch */
+  -webkit-user-drag: none;
+  /* Ensure crisp rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Utility classes */
+.no-select {
+  user-select: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Scrollbar styling for dark theme (if needed) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-primary);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgb(255 255 255 / 30%);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Touch-specific optimizations for tablets */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase button/control sizes for touch devices */
+  button,
+  .control-element {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover states on touch devices */
+  *:hover {
+    /* Prevent sticky hover states on touch */
+  }
+}
+
+/* Tablet landscape optimization (primary use case) */
+@media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+  /* Optimized for 10-13 inch tablets in landscape */
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Tablet portrait (secondary use case) */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  /* Adjust for portrait if needed */
+  html {
+    font-size: 13px;
+  }
+}
+
+/* Small tablets (iPad Mini, Kindle Fire) */
+@media (max-width: 768px) {
+  html {
+    font-size: 12px;
+  }
+}
+
+/* Large tablets (iPad Pro 12.9") */
+@media (min-width: 1367px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Ensure sharp rendering on Retina displays */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ===================================================================
+   TOUCH FEEDBACK UTILITIES
+   Comprehensive touch feedback system for professional interactions
+   =================================================================== */
+
+/* Base touchable element */
+.touchable {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease, background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.touchable:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+/* Touchable with highlight overlay */
+.touchable-highlight {
+  position: relative;
+}
+
+.touchable-highlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.touchable-highlight:active::before {
+  opacity: 1;
+}
+
+/* Scale animation utility */
+.touch-feedback-scale {
+  transition: transform 0.15s ease;
+  will-change: transform;
+}
+
+.touch-feedback-scale:active {
+  transform: scale(0.95);
+}
+
+/* Glow effect utility */
+.touch-feedback-glow {
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+  will-change: box-shadow, filter;
+}
+
+.touch-feedback-glow:active {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  filter: brightness(1.1);
+}
+
+/* Pressed state class */
+.touched,
+.pressed {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(0.95);
+}
+
+/* Button touch states */
+button.touchable {
+  will-change: transform, filter;
+}
+
+button.touchable:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+button.touchable.touched {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced button styles with touch feedback */
+button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+/* Focus ring for accessibility */
+button:focus-visible,
+.touchable:focus-visible {
+  outline: 2px solid var(--color-accent, #3399ff);
+  outline-offset: 2px;
+}
+
+/* Disabled state */
+button:disabled,
+.touchable.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Touch target size enforcement */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .touchable,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 16px;
+  }
+  
+  /* Remove sticky hover states on touch devices */
+  button:hover,
+  .touchable:hover {
+    transform: none;
+    filter: none;
+  }
+  
+  /* Ensure touch targets are properly sized */
+  .control-element,
+  .interactive-element {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Input element touch feedback */
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+input[type="checkbox"]:active,
+input[type="radio"]:active {
+  transform: scale(0.9);
+}
+
+input[type="range"] {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  border: none;
+}
+
+input[type="range"]:active::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Select dropdown touch feedback */
+select {
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  min-height: 44px;
+}
+
+select:active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Label touch feedback for checkbox/radio containers */
+label {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  user-select: none;
+}
+
+label:active {
+  opacity: 0.8;
+}
+
+/* Touch ripple container */
+.with-ripple {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .touchable,
+  .touch-feedback-scale,
+  .touch-feedback-glow,
+  button,
+  input,
+  select,
+  label {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  
+  .touchable:active,
+  button:active {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  button:focus-visible,
+  .touchable:focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+  
+  .touchable-highlight::before {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  .touched,
+  .pressed {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Dark theme button states */
+@media (prefers-color-scheme: dark) {
+  .touchable-highlight::before {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .touch-feedback-glow:active {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Performance optimizations */
+button,
+.touchable {
+  /* Hardware acceleration for transforms */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Touch feedback timing variables */
+:root {
+  --touch-transition-fast: 0.1s;
+  --touch-transition-normal: 0.15s;
+  --touch-transition-slow: 0.3s;
+  --touch-scale-pressed: 0.95;
+  --touch-brightness-pressed: 0.9;
+}
+
+/* Utility classes for different touch feedback intensities */
+.touch-feedback-subtle:active {
+  transform: scale(0.98);
+  filter: brightness(0.95);
+}
+
+.touch-feedback-normal:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+.touch-feedback-strong:active {
+  transform: scale(0.9);
+  filter: brightness(0.85);
+}
+
+/* No touch feedback utility */
+.no-touch-feedback {
+  transform: none !important;
+  filter: none !important;
+}
+
+.no-touch-feedback:active {
+  transform: none !important;
+  filter: none !important;
+}
+
+/* ===================================================================
+   SCREEN READER ACCESSIBILITY UTILITIES
+   Styles for screen reader only content and visual-only content
+   =================================================================== */
+
+/* Screen reader only - visually hidden but accessible to assistive technology */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focusable screen reader only - becomes visible when focused (for skip links) */
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Visual-only content - hidden from screen readers but visible */
+[aria-hidden="true"] {
+  /* Content is hidden from assistive technology but visible on screen */
+}
+
+/* Enhanced focus indicators for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* High contrast mode focus indicators */
+@media (prefers-contrast: high) {
+  *:focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+}

@@ -1,0 +1,48 @@
+/* Critical styles to prevent FOUC */
+/* Loaded before main bundle for instant rendering */
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #0b0e17;
+  color: #fff;
+  /* Prevent pull-to-refresh */
+  overscroll-behavior-y: none;
+  /* Remove tap highlight */
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent text selection */
+  -webkit-user-select: none;
+  user-select: none;
+  /* Disable callout */
+  -webkit-touch-callout: none;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Canvas styles */
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}

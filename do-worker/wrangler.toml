@@ -1,0 +1,19 @@
+name = "pump-sim-instructor"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+account_id = "265122b6d6f29457b0ca950c55f3ac6e"
+
+# Durable Objects bindings
+[durable_objects]
+bindings = [
+  { name = "ROOM", class_name = "Room" }
+]
+
+# Durable Objects migrations - using SQLite format for free tier
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+# Observability
+[observability]
+enabled = true

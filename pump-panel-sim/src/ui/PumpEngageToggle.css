@@ -1,0 +1,155 @@
+.pump-engage-toggle {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid #333;
+  z-index: 1000;
+}
+
+.engage-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.engage-switch:active {
+  transform: scale(0.95);
+}
+
+.engage-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 34px;
+  background-color: #555;
+  transition: all 0.3s ease;
+  border-radius: 34px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.engage-switch:active .slider:before {
+  width: 30px;
+}
+
+input:checked + .slider {
+  background-color: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.engage-switch:focus-visible {
+  outline: 2px solid #3399ff;
+  outline-offset: 2px;
+  border-radius: 34px;
+}
+
+.engage-label {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.engage-label.on {
+  color: #22c55e;
+  text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.engage-label.off {
+  color: #999;
+}
+
+/* Touch device enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .engage-switch {
+    width: 70px;
+    height: 40px;
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  .slider {
+    width: 70px;
+    height: 40px;
+  }
+  
+  .slider:before {
+    height: 32px;
+    width: 32px;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(30px);
+  }
+  
+  .pump-engage-toggle {
+    padding: 14px 22px;
+  }
+  
+  .engage-label {
+    font-size: 20px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .slider,
+  .slider:before,
+  .engage-switch {
+    transition-duration: 0.01ms !important;
+  }
+  
+  .engage-switch:active {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .slider {
+    border: 2px solid currentColor;
+  }
+  
+  input:checked + .slider {
+    border-color: #22c55e;
+  }
+}

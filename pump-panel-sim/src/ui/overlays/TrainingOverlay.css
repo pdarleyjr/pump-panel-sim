@@ -1,0 +1,377 @@
+/**
+ * Training overlay styles
+ * Provides educational overlays for failure scenarios and training tips
+ */
+
+.training-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+  padding: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.training-overlay-container {
+  background: linear-gradient(135deg, #1a1d2e 0%, #0f1119 100%);
+  border-radius: 12px;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Critical warning border */
+.training-overlay-container.critical {
+  border: 4px solid #ff3333;
+  box-shadow: 0 0 40px rgba(255, 51, 51, 0.6);
+}
+
+/* Standard warning border */
+.training-overlay-container.warning {
+  border: 4px solid #ffaa00;
+  box-shadow: 0 0 40px rgba(255, 170, 0, 0.5);
+}
+
+/* Info border */
+.training-overlay-container.info {
+  border: 4px solid #3399ff;
+  box-shadow: 0 0 40px rgba(51, 153, 255, 0.4);
+}
+
+/* Tip border */
+.training-overlay-container.tip {
+  border: 3px solid #00cc88;
+  box-shadow: 0 0 30px rgba(0, 204, 136, 0.3);
+}
+
+.training-overlay-header {
+  padding: 24px 28px 16px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.training-overlay-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.training-overlay-title.critical {
+  color: #ff3333;
+  text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+}
+
+.training-overlay-title.warning {
+  color: #ffaa00;
+  text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+}
+
+.training-overlay-title.info {
+  color: #3399ff;
+  text-shadow: 0 0 10px rgba(51, 153, 255, 0.5);
+}
+
+.training-overlay-title.tip {
+  color: #00cc88;
+  text-shadow: 0 0 10px rgba(0, 204, 136, 0.5);
+  font-size: 24px;
+  text-transform: none;
+}
+
+.training-overlay-icon {
+  font-size: 36px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.training-overlay-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 20px;
+  transition: all 0.15s ease;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.training-overlay-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.training-overlay-close:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+.training-overlay-close:focus-visible {
+  outline: 2px solid #3399ff;
+  outline-offset: 2px;
+}
+
+.training-overlay-body {
+  padding: 24px 28px;
+}
+
+.training-overlay-section {
+  margin-bottom: 24px;
+}
+
+.training-overlay-section:last-child {
+  margin-bottom: 0;
+}
+
+.training-overlay-section-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.3px;
+}
+
+.training-overlay-section-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.training-overlay-section-item {
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 16px;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.training-overlay-section-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: #3399ff;
+  transform: translateX(4px);
+}
+
+/* Special styling for action items */
+.training-overlay-section-item:contains("✓"),
+.training-overlay-section-item:contains("🚨"),
+.training-overlay-section-item:contains("⚠️") {
+  font-weight: 500;
+}
+
+.training-overlay-footer {
+  padding: 16px 28px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.training-overlay-button {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  min-height: 44px;
+  min-width: 120px;
+}
+
+.training-overlay-button-primary {
+  background: linear-gradient(135deg, #3399ff 0%, #0066cc 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(51, 153, 255, 0.3);
+}
+
+.training-overlay-button-primary:hover {
+  background: linear-gradient(135deg, #5ab3ff 0%, #3399ff 100%);
+  box-shadow: 0 6px 16px rgba(51, 153, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.training-overlay-button-primary:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+.training-overlay-button-primary:focus-visible {
+  outline: 2px solid #3399ff;
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+.training-overlay-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.training-overlay-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.training-overlay-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.training-overlay-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Touch device enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .training-overlay-close {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 24px;
+  }
+  
+  .training-overlay-button {
+    padding: 14px 32px;
+    font-size: 18px;
+    min-height: 48px;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .training-overlay-backdrop {
+    padding: 10px;
+  }
+
+  .training-overlay-container {
+    max-width: 100%;
+    max-height: 90vh;
+  }
+
+  .training-overlay-header {
+    padding: 20px 20px 12px;
+  }
+
+  .training-overlay-title {
+    font-size: 22px;
+  }
+
+  .training-overlay-icon {
+    font-size: 28px;
+  }
+
+  .training-overlay-body {
+    padding: 20px;
+  }
+
+  .training-overlay-section-label {
+    font-size: 16px;
+  }
+
+  .training-overlay-section-item {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .training-overlay-button {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+  
+  .training-overlay-close {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .training-overlay-backdrop,
+  .training-overlay-container,
+  .training-overlay-icon,
+  .training-overlay-button,
+  .training-overlay-close {
+    animation: none;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .training-overlay-button:active,
+  .training-overlay-close:active {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .training-overlay-container {
+    border-width: 6px;
+  }
+
+  .training-overlay-section-item {
+    border-left-width: 4px;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.training-overlay-container:focus-visible {
+  outline: 3px solid #3399ff;
+  outline-offset: 4px;
+}

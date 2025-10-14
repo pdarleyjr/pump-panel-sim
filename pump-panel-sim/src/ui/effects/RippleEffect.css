@@ -1,0 +1,164 @@
+/**
+ * Ripple Effect Styles
+ * Material Design-style ripple animation for touch feedback
+ */
+
+.ripple-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-animation ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Button wrapper styles for ripple effect */
+.with-ripple {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Touch feedback base styles */
+.touchable {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.touchable:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+/* Touch highlight animation */
+.touchable-highlight {
+  position: relative;
+}
+
+.touchable-highlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.touchable-highlight:active::before {
+  opacity: 1;
+}
+
+/* Scale animation utility */
+.touch-feedback-scale {
+  transition: transform 0.15s ease;
+}
+
+.touch-feedback-scale:active {
+  transform: scale(0.95);
+}
+
+/* Glow effect utility */
+.touch-feedback-glow {
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.touch-feedback-glow:active {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  filter: brightness(1.1);
+}
+
+/* Pressed state */
+.touched {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(0.95);
+}
+
+/* Button-specific touch states */
+button.with-ripple {
+  transition: all 0.15s ease;
+  will-change: transform, filter;
+}
+
+button.with-ripple:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+button.with-ripple.touched {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Focus states for accessibility */
+.with-ripple:focus-visible {
+  outline: 2px solid #3399ff;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .ripple-effect {
+    animation-duration: 0.01ms !important;
+  }
+  
+  .touchable,
+  .touch-feedback-scale,
+  .touch-feedback-glow,
+  button.with-ripple {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .with-ripple:focus-visible {
+    outline-width: 3px;
+  }
+  
+  .touchable-highlight::before {
+    background: rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Touch device specific optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets on touch devices */
+  .with-ripple {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover states that can stick on touch */
+  .with-ripple:hover {
+    transform: none;
+    filter: none;
+  }
+}

@@ -1,0 +1,100 @@
+/**
+ * Keyboard Feedback Styles
+ * Toast notifications for keyboard actions
+ */
+
+.keyboard-feedback-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.keyboard-feedback-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  min-width: 200px;
+  max-width: 400px;
+  opacity: 0;
+  transform: translateX(100px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.keyboard-feedback-toast.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.keyboard-feedback-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.keyboard-feedback-message {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #f1f5f9;
+  flex: 1;
+}
+
+/* Toast type variants */
+.keyboard-feedback-info {
+  border-color: #3b82f6;
+}
+
+.keyboard-feedback-info .keyboard-feedback-icon {
+  color: #3b82f6;
+}
+
+.keyboard-feedback-success {
+  border-color: #10b981;
+}
+
+.keyboard-feedback-success .keyboard-feedback-icon {
+  color: #10b981;
+}
+
+.keyboard-feedback-warning {
+  border-color: #f59e0b;
+}
+
+.keyboard-feedback-warning .keyboard-feedback-icon {
+  color: #f59e0b;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .keyboard-feedback-container {
+    top: 60px;
+    right: 12px;
+    left: 12px;
+  }
+
+  .keyboard-feedback-toast {
+    max-width: 100%;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .keyboard-feedback-toast {
+    transition: opacity 0.3s;
+    transform: none;
+  }
+
+  .keyboard-feedback-toast.visible {
+    transform: none;
+  }
+}

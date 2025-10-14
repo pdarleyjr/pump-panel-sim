@@ -1,0 +1,18 @@
+{
+  "_comment": "TODO: Replace icons with proper 192x192 and 512x512 PNGs. See /public/icons/generate-icons.md for instructions.",
+  "name": "Fire Pump Panel Simulator",
+  "short_name": "Pump Sim",
+  "description": "Pierce PUC fire pump panel training simulator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0e17",
+  "theme_color": "#ef4444",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

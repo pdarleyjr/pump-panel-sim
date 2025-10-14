@@ -1,0 +1,153 @@
+.settings {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.settings button {
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.settings button:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.settings button:active {
+  transform: scale(0.95);
+  filter: brightness(0.9);
+}
+
+.settings button:focus-visible {
+  outline: 2px solid #3399ff;
+  outline-offset: 2px;
+}
+
+.settings-sheet {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+.settings-sheet label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.settings-sheet label:last-child {
+  margin-bottom: 0;
+}
+
+.settings-sheet input[type="checkbox"],
+.settings-sheet input[type="radio"] {
+  cursor: pointer;
+  min-width: 20px;
+  min-height: 20px;
+  transition: transform 0.1s ease;
+}
+
+.settings-sheet input[type="checkbox"]:active,
+.settings-sheet input[type="radio"]:active {
+  transform: scale(0.9);
+}
+
+.settings-sheet input[type="range"] {
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.settings-sheet input[type="range"]::-webkit-slider-thumb {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.settings-sheet input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.settings-sheet input[type="range"]::-moz-range-thumb {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.settings-sheet input[type="range"]:active::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.settings-sheet input[type="text"] {
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.settings-sheet input[type="text"]:focus {
+  border-color: #3399ff;
+  background-color: rgba(255, 255, 255, 0.08);
+  outline: 2px solid #3399ff;
+  outline-offset: 2px;
+}
+
+/* Touch feedback for labels */
+.settings-sheet label {
+  transition: opacity 0.15s ease;
+  user-select: none;
+  position: relative;
+}
+
+.settings-sheet label:active {
+  opacity: 0.8;
+}
+
+/* Enhanced touch targets on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .settings button {
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .settings-sheet label {
+    padding: 0.5rem 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .settings-sheet input[type="checkbox"],
+  .settings-sheet input[type="radio"] {
+    min-width: 24px;
+    min-height: 24px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .settings button,
+  .settings-sheet input,
+  .settings-sheet label {
+    transition-duration: 0.01ms !important;
+  }
+  
+  .settings button:active,
+  .settings-sheet input:active {
+    transform: none !important;
+  }
+}

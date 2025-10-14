@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    
+    <!-- Viewport configuration optimized for tablets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- iOS Safari specific meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Fire Pump Sim" />
+    
+    <!-- Android/Chrome specific -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0b0e17" />
+    
+    <!-- Disable automatic phone number detection -->
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Optimize for touch -->
+    <meta name="HandheldFriendly" content="true" />
+    
+    <title>Fire Pump Simulator</title>
+    
+    <!-- Critical CSS to prevent FOUC - CSP Compliant -->
+    <link rel="stylesheet" href="/critical.css">
+    
+    <!-- Preload main stylesheets -->
+    <link rel="preload" href="/src/index.css" as="style">
+    <link rel="preload" href="/src/App.css" as="style">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

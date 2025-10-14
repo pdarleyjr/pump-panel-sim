@@ -1,0 +1,422 @@
+test	Set up job	﻿2025-10-14T01:36:34.0530823Z Current runner version: '2.328.0'
+test	Set up job	2025-10-14T01:36:34.0558831Z ##[group]Runner Image Provisioner
+test	Set up job	2025-10-14T01:36:34.0560126Z Hosted Compute Agent
+test	Set up job	2025-10-14T01:36:34.0561057Z Version: 20250912.392
+test	Set up job	2025-10-14T01:36:34.0562254Z Commit: d921fda672a98b64f4f82364647e2f10b2267d0b
+test	Set up job	2025-10-14T01:36:34.0563503Z Build Date: 2025-09-12T15:23:14Z
+test	Set up job	2025-10-14T01:36:34.0564507Z ##[endgroup]
+test	Set up job	2025-10-14T01:36:34.0565406Z ##[group]Operating System
+test	Set up job	2025-10-14T01:36:34.0566461Z Ubuntu
+test	Set up job	2025-10-14T01:36:34.0567264Z 24.04.3
+test	Set up job	2025-10-14T01:36:34.0567993Z LTS
+test	Set up job	2025-10-14T01:36:34.0568909Z ##[endgroup]
+test	Set up job	2025-10-14T01:36:34.0569731Z ##[group]Runner Image
+test	Set up job	2025-10-14T01:36:34.0570680Z Image: ubuntu-24.04
+test	Set up job	2025-10-14T01:36:34.0571672Z Version: 20250929.60.1
+test	Set up job	2025-10-14T01:36:34.0573354Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250929.60/images/ubuntu/Ubuntu2404-Readme.md
+test	Set up job	2025-10-14T01:36:34.0575679Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250929.60
+test	Set up job	2025-10-14T01:36:34.0577736Z ##[endgroup]
+test	Set up job	2025-10-14T01:36:34.0579741Z ##[group]GITHUB_TOKEN Permissions
+test	Set up job	2025-10-14T01:36:34.0583312Z Contents: read
+test	Set up job	2025-10-14T01:36:34.0584221Z Metadata: read
+test	Set up job	2025-10-14T01:36:34.0585150Z Packages: read
+test	Set up job	2025-10-14T01:36:34.0585990Z ##[endgroup]
+test	Set up job	2025-10-14T01:36:34.0589699Z Secret source: Actions
+test	Set up job	2025-10-14T01:36:34.0591096Z Prepare workflow directory
+test	Set up job	2025-10-14T01:36:34.1070441Z Prepare all required actions
+test	Set up job	2025-10-14T01:36:34.1129822Z Getting action download info
+test	Set up job	2025-10-14T01:36:34.3814749Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+test	Set up job	2025-10-14T01:36:34.5545213Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+test	Set up job	2025-10-14T01:36:34.7277159Z Complete job name: test
+test	Checkout repository	﻿2025-10-14T01:36:34.7952123Z ##[group]Run actions/checkout@v4
+test	Checkout repository	2025-10-14T01:36:34.7953024Z with:
+test	Checkout repository	2025-10-14T01:36:34.7953464Z   repository: pdarleyjr/pump-panel-sim
+test	Checkout repository	2025-10-14T01:36:34.7954195Z   token: ***
+test	Checkout repository	2025-10-14T01:36:34.7954603Z   ssh-strict: true
+test	Checkout repository	2025-10-14T01:36:34.7955010Z   ssh-user: git
+test	Checkout repository	2025-10-14T01:36:34.7955546Z   persist-credentials: true
+test	Checkout repository	2025-10-14T01:36:34.7956003Z   clean: true
+test	Checkout repository	2025-10-14T01:36:34.7956405Z   sparse-checkout-cone-mode: true
+test	Checkout repository	2025-10-14T01:36:34.7956891Z   fetch-depth: 1
+test	Checkout repository	2025-10-14T01:36:34.7957289Z   fetch-tags: false
+test	Checkout repository	2025-10-14T01:36:34.7957701Z   show-progress: true
+test	Checkout repository	2025-10-14T01:36:34.7958113Z   lfs: false
+test	Checkout repository	2025-10-14T01:36:34.7958485Z   submodules: false
+test	Checkout repository	2025-10-14T01:36:34.7958910Z   set-safe-directory: true
+test	Checkout repository	2025-10-14T01:36:34.7959582Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:34.9084769Z Syncing repository: pdarleyjr/pump-panel-sim
+test	Checkout repository	2025-10-14T01:36:34.9086619Z ##[group]Getting Git version info
+test	Checkout repository	2025-10-14T01:36:34.9087396Z Working directory is '/home/runner/work/pump-panel-sim/pump-panel-sim'
+test	Checkout repository	2025-10-14T01:36:34.9088495Z [command]/usr/bin/git version
+test	Checkout repository	2025-10-14T01:36:34.9178941Z git version 2.51.0
+test	Checkout repository	2025-10-14T01:36:34.9206940Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:34.9228986Z Temporarily overriding HOME='/home/runner/work/_temp/620105f6-fb5f-4e56-98f8-f67868107691' before making global git config changes
+test	Checkout repository	2025-10-14T01:36:34.9230390Z Adding repository directory to the temporary git global config as a safe directory
+test	Checkout repository	2025-10-14T01:36:34.9235281Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/pump-panel-sim/pump-panel-sim
+test	Checkout repository	2025-10-14T01:36:34.9275965Z Deleting the contents of '/home/runner/work/pump-panel-sim/pump-panel-sim'
+test	Checkout repository	2025-10-14T01:36:34.9279994Z ##[group]Initializing the repository
+test	Checkout repository	2025-10-14T01:36:34.9285301Z [command]/usr/bin/git init /home/runner/work/pump-panel-sim/pump-panel-sim
+test	Checkout repository	2025-10-14T01:36:34.9420015Z hint: Using 'master' as the name for the initial branch. This default branch name
+test	Checkout repository	2025-10-14T01:36:34.9421681Z hint: is subject to change. To configure the initial branch name to use in all
+test	Checkout repository	2025-10-14T01:36:34.9422854Z hint: of your new repositories, which will suppress this warning, call:
+test	Checkout repository	2025-10-14T01:36:34.9423954Z hint:
+test	Checkout repository	2025-10-14T01:36:34.9424475Z hint: 	git config --global init.defaultBranch <name>
+test	Checkout repository	2025-10-14T01:36:34.9426177Z hint:
+test	Checkout repository	2025-10-14T01:36:34.9427142Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+test	Checkout repository	2025-10-14T01:36:34.9428662Z hint: 'development'. The just-created branch can be renamed via this command:
+test	Checkout repository	2025-10-14T01:36:34.9429915Z hint:
+test	Checkout repository	2025-10-14T01:36:34.9430653Z hint: 	git branch -m <name>
+test	Checkout repository	2025-10-14T01:36:34.9431720Z hint:
+test	Checkout repository	2025-10-14T01:36:34.9432729Z hint: Disable this message with "git config set advice.defaultBranchName false"
+test	Checkout repository	2025-10-14T01:36:34.9434476Z Initialized empty Git repository in /home/runner/work/pump-panel-sim/pump-panel-sim/.git/
+test	Checkout repository	2025-10-14T01:36:34.9439982Z [command]/usr/bin/git remote add origin https://github.com/pdarleyjr/pump-panel-sim
+test	Checkout repository	2025-10-14T01:36:34.9484908Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:34.9486182Z ##[group]Disabling automatic garbage collection
+test	Checkout repository	2025-10-14T01:36:34.9490174Z [command]/usr/bin/git config --local gc.auto 0
+test	Checkout repository	2025-10-14T01:36:34.9520856Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:34.9522250Z ##[group]Setting up auth
+test	Checkout repository	2025-10-14T01:36:34.9529141Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+test	Checkout repository	2025-10-14T01:36:34.9560460Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+test	Checkout repository	2025-10-14T01:36:34.9920491Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+test	Checkout repository	2025-10-14T01:36:34.9953066Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+test	Checkout repository	2025-10-14T01:36:35.0186724Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+test	Checkout repository	2025-10-14T01:36:35.0230113Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:35.0231750Z ##[group]Fetching the repository
+test	Checkout repository	2025-10-14T01:36:35.0240829Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +9fc07be2bc3d4f4df58c82514eac399adcae0fd5:refs/remotes/origin/main
+test	Checkout repository	2025-10-14T01:36:35.2529911Z From https://github.com/pdarleyjr/pump-panel-sim
+test	Checkout repository	2025-10-14T01:36:35.2531677Z  * [new ref]         9fc07be2bc3d4f4df58c82514eac399adcae0fd5 -> origin/main
+test	Checkout repository	2025-10-14T01:36:35.2564122Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:35.2565327Z ##[group]Determining the checkout info
+test	Checkout repository	2025-10-14T01:36:35.2567026Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:35.2572952Z [command]/usr/bin/git sparse-checkout disable
+test	Checkout repository	2025-10-14T01:36:35.2615782Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+test	Checkout repository	2025-10-14T01:36:35.2644770Z ##[group]Checking out the ref
+test	Checkout repository	2025-10-14T01:36:35.2649175Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+test	Checkout repository	2025-10-14T01:36:35.2765267Z Switched to a new branch 'main'
+test	Checkout repository	2025-10-14T01:36:35.2767022Z branch 'main' set up to track 'origin/main'.
+test	Checkout repository	2025-10-14T01:36:35.2774164Z ##[endgroup]
+test	Checkout repository	2025-10-14T01:36:35.2812989Z [command]/usr/bin/git log -1 --format=%H
+test	Checkout repository	2025-10-14T01:36:35.2835396Z 9fc07be2bc3d4f4df58c82514eac399adcae0fd5
+test	Setup Node.js	﻿2025-10-14T01:36:35.3077392Z ##[group]Run actions/setup-node@v4
+test	Setup Node.js	2025-10-14T01:36:35.3077950Z with:
+test	Setup Node.js	2025-10-14T01:36:35.3078314Z   node-version: 20
+test	Setup Node.js	2025-10-14T01:36:35.3078701Z   cache: npm
+test	Setup Node.js	2025-10-14T01:36:35.3079076Z   always-auth: false
+test	Setup Node.js	2025-10-14T01:36:35.3079473Z   check-latest: false
+test	Setup Node.js	2025-10-14T01:36:35.3080017Z   token: ***
+test	Setup Node.js	2025-10-14T01:36:35.3080378Z ##[endgroup]
+test	Setup Node.js	2025-10-14T01:36:35.4917659Z Found in cache @ /opt/hostedtoolcache/node/20.19.5/x64
+test	Setup Node.js	2025-10-14T01:36:35.4926376Z ##[group]Environment details
+test	Setup Node.js	2025-10-14T01:36:38.4541222Z node: v20.19.5
+test	Setup Node.js	2025-10-14T01:36:38.4542566Z npm: 10.8.2
+test	Setup Node.js	2025-10-14T01:36:38.4543042Z yarn: 1.22.22
+test	Setup Node.js	2025-10-14T01:36:38.4544340Z ##[endgroup]
+test	Setup Node.js	2025-10-14T01:36:38.4567728Z [command]/opt/hostedtoolcache/node/20.19.5/x64/bin/npm config get cache
+test	Setup Node.js	2025-10-14T01:36:38.8118022Z /home/runner/.npm
+test	Setup Node.js	2025-10-14T01:36:38.9527031Z Cache hit for: node-cache-Linux-x64-npm-60a779eb2156284c0acb6e0b4dbbfeb43a5432f2ffe790c6c5b1af2282b54eb6
+test	Setup Node.js	2025-10-14T01:36:39.3493526Z Received 52877847 of 52877847 (100.0%), 146.6 MBs/sec
+test	Setup Node.js	2025-10-14T01:36:39.3494648Z Cache Size: ~50 MB (52877847 B)
+test	Setup Node.js	2025-10-14T01:36:39.3603634Z [command]/usr/bin/tar -xf /home/runner/work/_temp/5bd5a5ca-b7a3-499f-9891-d47549bb0c4e/cache.tzst -P -C /home/runner/work/pump-panel-sim/pump-panel-sim --use-compress-program unzstd
+test	Setup Node.js	2025-10-14T01:36:39.5313762Z Cache restored successfully
+test	Setup Node.js	2025-10-14T01:36:39.5421716Z Cache restored from key: node-cache-Linux-x64-npm-60a779eb2156284c0acb6e0b4dbbfeb43a5432f2ffe790c6c5b1af2282b54eb6
+test	Install dependencies	﻿2025-10-14T01:36:39.5570954Z ##[group]Run npm ci
+test	Install dependencies	2025-10-14T01:36:39.5571320Z [36;1mnpm ci[0m
+test	Install dependencies	2025-10-14T01:36:39.5704875Z shell: /usr/bin/bash -e {0}
+test	Install dependencies	2025-10-14T01:36:39.5705210Z ##[endgroup]
+test	Install dependencies	2025-10-14T01:36:46.3584390Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+test	Install dependencies	2025-10-14T01:36:46.5629709Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+test	Install dependencies	2025-10-14T01:36:46.6293900Z npm warn deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+test	Install dependencies	2025-10-14T01:36:46.8222688Z npm warn deprecated source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+test	Install dependencies	2025-10-14T01:36:49.6973884Z 
+test	Install dependencies	2025-10-14T01:36:49.6975876Z added 636 packages, and audited 637 packages in 10s
+test	Install dependencies	2025-10-14T01:36:49.6976357Z 
+test	Install dependencies	2025-10-14T01:36:49.6976677Z 168 packages are looking for funding
+test	Install dependencies	2025-10-14T01:36:49.6977356Z   run `npm fund` for details
+test	Install dependencies	2025-10-14T01:36:49.6990105Z 
+test	Install dependencies	2025-10-14T01:36:49.6991040Z found 0 vulnerabilities
+test	Run tests	﻿2025-10-14T01:36:49.7485995Z ##[group]Run npm test -- --run
+test	Run tests	2025-10-14T01:36:49.7486338Z [36;1mnpm test -- --run[0m
+test	Run tests	2025-10-14T01:36:49.7522531Z shell: /usr/bin/bash -e {0}
+test	Run tests	2025-10-14T01:36:49.7522804Z ##[endgroup]
+test	Run tests	2025-10-14T01:36:49.8842469Z 
+test	Run tests	2025-10-14T01:36:49.8843110Z > app@0.0.0 test
+test	Run tests	2025-10-14T01:36:49.8843555Z > vitest --run
+test	Run tests	2025-10-14T01:36:49.8843749Z 
+test	Run tests	2025-10-14T01:36:50.2963022Z 
+test	Run tests	2025-10-14T01:36:50.2966380Z [1m[46m RUN [49m[22m [36mv3.2.4 [39m[90m/home/runner/work/pump-panel-sim/pump-panel-sim[39m
+test	Run tests	2025-10-14T01:36:50.2967267Z 
+test	Run tests	2025-10-14T01:36:51.5409878Z  [32m✓[39m src/audio/haptics.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+test	Run tests	2025-10-14T01:36:51.5420108Z  [32m✓[39m src/hydraulics/formulas.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+test	Run tests	2025-10-14T01:36:51.6076777Z  [32m✓[39m src/sim/engine.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+test	Run tests	2025-10-14T01:36:52.4167519Z  [32m✓[39m src/hydraulics/formulas.property.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+test	Run tests	2025-10-14T01:36:52.4387342Z 
+test	Run tests	2025-10-14T01:36:52.4405628Z [2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+test	Run tests	2025-10-14T01:36:52.4406838Z [2m      Tests [22m [1m[32m48 passed[39m[22m[90m (48)[39m
+test	Run tests	2025-10-14T01:36:52.4407784Z [2m   Start at [22m 01:36:50
+test	Run tests	2025-10-14T01:36:52.4409209Z [2m   Duration [22m 2.14s[2m (transform 305ms, setup 0ms, collect 531ms, tests 52ms, environment 2.96s, prepare 439ms)[22m
+test	Run tests	2025-10-14T01:36:52.4410253Z 
+test	Post Setup Node.js	﻿2025-10-14T01:36:52.5661997Z Post job cleanup.
+test	Post Setup Node.js	2025-10-14T01:36:52.7259925Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-60a779eb2156284c0acb6e0b4dbbfeb43a5432f2ffe790c6c5b1af2282b54eb6, not saving cache.
+test	Post Checkout repository	﻿2025-10-14T01:36:52.7377841Z Post job cleanup.
+test	Post Checkout repository	2025-10-14T01:36:52.8363410Z [command]/usr/bin/git version
+test	Post Checkout repository	2025-10-14T01:36:52.8406411Z git version 2.51.0
+test	Post Checkout repository	2025-10-14T01:36:52.8452270Z Temporarily overriding HOME='/home/runner/work/_temp/43d3a1f6-7797-42a0-9a70-65e267094710' before making global git config changes
+test	Post Checkout repository	2025-10-14T01:36:52.8453144Z Adding repository directory to the temporary git global config as a safe directory
+test	Post Checkout repository	2025-10-14T01:36:52.8457959Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/pump-panel-sim/pump-panel-sim
+test	Post Checkout repository	2025-10-14T01:36:52.8496771Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+test	Post Checkout repository	2025-10-14T01:36:52.8532700Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+test	Post Checkout repository	2025-10-14T01:36:52.8786975Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+test	Post Checkout repository	2025-10-14T01:36:52.8812030Z http.https://github.com/.extraheader
+test	Post Checkout repository	2025-10-14T01:36:52.8827601Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+test	Post Checkout repository	2025-10-14T01:36:52.8864411Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+test	Complete job	﻿2025-10-14T01:36:52.9222877Z Cleaning up orphan processes
+deploy-pages	Set up job	﻿2025-10-14T01:36:57.7583263Z Current runner version: '2.328.0'
+deploy-pages	Set up job	2025-10-14T01:36:57.7607723Z ##[group]Runner Image Provisioner
+deploy-pages	Set up job	2025-10-14T01:36:57.7608660Z Hosted Compute Agent
+deploy-pages	Set up job	2025-10-14T01:36:57.7609226Z Version: 20250912.392
+deploy-pages	Set up job	2025-10-14T01:36:57.7609793Z Commit: d921fda672a98b64f4f82364647e2f10b2267d0b
+deploy-pages	Set up job	2025-10-14T01:36:57.7610562Z Build Date: 2025-09-12T15:23:14Z
+deploy-pages	Set up job	2025-10-14T01:36:57.7611155Z ##[endgroup]
+deploy-pages	Set up job	2025-10-14T01:36:57.7611837Z ##[group]Operating System
+deploy-pages	Set up job	2025-10-14T01:36:57.7612453Z Ubuntu
+deploy-pages	Set up job	2025-10-14T01:36:57.7612913Z 24.04.3
+deploy-pages	Set up job	2025-10-14T01:36:57.7613334Z LTS
+deploy-pages	Set up job	2025-10-14T01:36:57.7613834Z ##[endgroup]
+deploy-pages	Set up job	2025-10-14T01:36:57.7614363Z ##[group]Runner Image
+deploy-pages	Set up job	2025-10-14T01:36:57.7614874Z Image: ubuntu-24.04
+deploy-pages	Set up job	2025-10-14T01:36:57.7615441Z Version: 20250929.60.1
+deploy-pages	Set up job	2025-10-14T01:36:57.7616457Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250929.60/images/ubuntu/Ubuntu2404-Readme.md
+deploy-pages	Set up job	2025-10-14T01:36:57.7617828Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250929.60
+deploy-pages	Set up job	2025-10-14T01:36:57.7619027Z ##[endgroup]
+deploy-pages	Set up job	2025-10-14T01:36:57.7620197Z ##[group]GITHUB_TOKEN Permissions
+deploy-pages	Set up job	2025-10-14T01:36:57.7622211Z Contents: read
+deploy-pages	Set up job	2025-10-14T01:36:57.7622772Z Deployments: write
+deploy-pages	Set up job	2025-10-14T01:36:57.7623372Z Metadata: read
+deploy-pages	Set up job	2025-10-14T01:36:57.7623912Z ##[endgroup]
+deploy-pages	Set up job	2025-10-14T01:36:57.7625909Z Secret source: Actions
+deploy-pages	Set up job	2025-10-14T01:36:57.7626699Z Prepare workflow directory
+deploy-pages	Set up job	2025-10-14T01:36:57.7945390Z Prepare all required actions
+deploy-pages	Set up job	2025-10-14T01:36:57.7985837Z Getting action download info
+deploy-pages	Set up job	2025-10-14T01:36:58.3010952Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+deploy-pages	Set up job	2025-10-14T01:36:58.4828338Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+deploy-pages	Set up job	2025-10-14T01:36:58.5722047Z Download action repository 'cloudflare/wrangler-action@v3' (SHA:da0e0dfe58b7a431659754fdf3f186c529afbe65)
+deploy-pages	Set up job	2025-10-14T01:36:59.1169649Z Complete job name: deploy-pages
+deploy-pages	Checkout repository	﻿2025-10-14T01:36:59.1844522Z ##[group]Run actions/checkout@v4
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1845490Z with:
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1845945Z   repository: pdarleyjr/pump-panel-sim
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1846669Z   token: ***
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1847065Z   ssh-strict: true
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1847482Z   ssh-user: git
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1847904Z   persist-credentials: true
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1848363Z   clean: true
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1848782Z   sparse-checkout-cone-mode: true
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1849274Z   fetch-depth: 1
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1849678Z   fetch-tags: false
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1850098Z   show-progress: true
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1850521Z   lfs: false
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1850903Z   submodules: false
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1851330Z   set-safe-directory: true
+deploy-pages	Checkout repository	2025-10-14T01:36:59.1852256Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.2968785Z Syncing repository: pdarleyjr/pump-panel-sim
+deploy-pages	Checkout repository	2025-10-14T01:36:59.2970858Z ##[group]Getting Git version info
+deploy-pages	Checkout repository	2025-10-14T01:36:59.2972381Z Working directory is '/home/runner/work/pump-panel-sim/pump-panel-sim'
+deploy-pages	Checkout repository	2025-10-14T01:36:59.2974328Z [command]/usr/bin/git version
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3065256Z git version 2.51.0
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3093716Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3117231Z Temporarily overriding HOME='/home/runner/work/_temp/450e6f82-6a55-43e7-a21e-ab62ed066631' before making global git config changes
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3119624Z Adding repository directory to the temporary git global config as a safe directory
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3124370Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/pump-panel-sim/pump-panel-sim
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3164169Z Deleting the contents of '/home/runner/work/pump-panel-sim/pump-panel-sim'
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3168036Z ##[group]Initializing the repository
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3173038Z [command]/usr/bin/git init /home/runner/work/pump-panel-sim/pump-panel-sim
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3290106Z hint: Using 'master' as the name for the initial branch. This default branch name
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3291880Z hint: is subject to change. To configure the initial branch name to use in all
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3292869Z hint: of your new repositories, which will suppress this warning, call:
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3293935Z hint:
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3295133Z hint: 	git config --global init.defaultBranch <name>
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3295777Z hint:
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3296636Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3298304Z hint: 'development'. The just-created branch can be renamed via this command:
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3299613Z hint:
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3300421Z hint: 	git branch -m <name>
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3301246Z hint:
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3302532Z hint: Disable this message with "git config set advice.defaultBranchName false"
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3304517Z Initialized empty Git repository in /home/runner/work/pump-panel-sim/pump-panel-sim/.git/
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3309584Z [command]/usr/bin/git remote add origin https://github.com/pdarleyjr/pump-panel-sim
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3349760Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3351016Z ##[group]Disabling automatic garbage collection
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3354837Z [command]/usr/bin/git config --local gc.auto 0
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3383615Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3384941Z ##[group]Setting up auth
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3391211Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3421827Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3786611Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+deploy-pages	Checkout repository	2025-10-14T01:36:59.3816142Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+deploy-pages	Checkout repository	2025-10-14T01:36:59.4037103Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+deploy-pages	Checkout repository	2025-10-14T01:36:59.4074201Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.4075530Z ##[group]Fetching the repository
+deploy-pages	Checkout repository	2025-10-14T01:36:59.4084326Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +9fc07be2bc3d4f4df58c82514eac399adcae0fd5:refs/remotes/origin/main
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8623098Z From https://github.com/pdarleyjr/pump-panel-sim
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8626331Z  * [new ref]         9fc07be2bc3d4f4df58c82514eac399adcae0fd5 -> origin/main
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8664316Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8666767Z ##[group]Determining the checkout info
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8668967Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8671042Z [command]/usr/bin/git sparse-checkout disable
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8733927Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8775402Z ##[group]Checking out the ref
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8781590Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8906906Z Switched to a new branch 'main'
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8908489Z branch 'main' set up to track 'origin/main'.
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8914887Z ##[endgroup]
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8952788Z [command]/usr/bin/git log -1 --format=%H
+deploy-pages	Checkout repository	2025-10-14T01:36:59.8974506Z 9fc07be2bc3d4f4df58c82514eac399adcae0fd5
+deploy-pages	Setup Node.js	﻿2025-10-14T01:36:59.9224612Z ##[group]Run actions/setup-node@v4
+deploy-pages	Setup Node.js	2025-10-14T01:36:59.9225273Z with:
+deploy-pages	Setup Node.js	2025-10-14T01:36:59.9225674Z   node-version: 20
+deploy-pages	Setup Node.js	2025-10-14T01:36:59.9226102Z   cache: npm
+deploy-pages	Setup Node.js	2025-10-14T01:36:59.9226514Z   always-auth: false
+deploy-pages	Setup Node.js	2025-10-14T01:36:59.9226964Z   check-latest: false
+deploy-pages	Setup Node.js	2025-10-14T01:36:59.9227566Z   token: ***
+deploy-pages	Setup Node.js	2025-10-14T01:36:59.9227984Z ##[endgroup]
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.1116076Z Found in cache @ /opt/hostedtoolcache/node/20.19.5/x64
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.1121147Z ##[group]Environment details
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.5442833Z node: v20.19.5
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.5443922Z npm: 10.8.2
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.5444569Z yarn: 1.22.22
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.5445892Z ##[endgroup]
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.5466733Z [command]/opt/hostedtoolcache/node/20.19.5/x64/bin/npm config get cache
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.6692500Z /home/runner/.npm
+deploy-pages	Setup Node.js	2025-10-14T01:37:00.9885433Z Cache hit for: node-cache-Linux-x64-npm-60a779eb2156284c0acb6e0b4dbbfeb43a5432f2ffe790c6c5b1af2282b54eb6
+deploy-pages	Setup Node.js	2025-10-14T01:37:02.2884254Z Received 4194304 of 52877847 (7.9%), 4.0 MBs/sec
+deploy-pages	Setup Node.js	2025-10-14T01:37:02.6700347Z Received 52877847 of 52877847 (100.0%), 36.5 MBs/sec
+deploy-pages	Setup Node.js	2025-10-14T01:37:02.6701617Z Cache Size: ~50 MB (52877847 B)
+deploy-pages	Setup Node.js	2025-10-14T01:37:02.6731365Z [command]/usr/bin/tar -xf /home/runner/work/_temp/b4cefe96-90a5-4475-a63c-0c71b781735d/cache.tzst -P -C /home/runner/work/pump-panel-sim/pump-panel-sim --use-compress-program unzstd
+deploy-pages	Setup Node.js	2025-10-14T01:37:02.8413108Z Cache restored successfully
+deploy-pages	Setup Node.js	2025-10-14T01:37:02.8522767Z Cache restored from key: node-cache-Linux-x64-npm-60a779eb2156284c0acb6e0b4dbbfeb43a5432f2ffe790c6c5b1af2282b54eb6
+deploy-pages	Install dependencies	﻿2025-10-14T01:37:02.8679840Z ##[group]Run npm ci
+deploy-pages	Install dependencies	2025-10-14T01:37:02.8680151Z [36;1mnpm ci[0m
+deploy-pages	Install dependencies	2025-10-14T01:37:02.8724079Z shell: /usr/bin/bash -e {0}
+deploy-pages	Install dependencies	2025-10-14T01:37:02.8724368Z ##[endgroup]
+deploy-pages	Install dependencies	2025-10-14T01:37:06.3999831Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+deploy-pages	Install dependencies	2025-10-14T01:37:06.5924667Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+deploy-pages	Install dependencies	2025-10-14T01:37:06.6568665Z npm warn deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+deploy-pages	Install dependencies	2025-10-14T01:37:06.8390131Z npm warn deprecated source-map@0.8.0-beta.0: The work that was done in this beta branch won't be included in future versions
+deploy-pages	Install dependencies	2025-10-14T01:37:09.6039700Z 
+deploy-pages	Install dependencies	2025-10-14T01:37:09.6040538Z added 636 packages, and audited 637 packages in 7s
+deploy-pages	Install dependencies	2025-10-14T01:37:09.6041145Z 
+deploy-pages	Install dependencies	2025-10-14T01:37:09.6041653Z 168 packages are looking for funding
+deploy-pages	Install dependencies	2025-10-14T01:37:09.6042237Z   run `npm fund` for details
+deploy-pages	Install dependencies	2025-10-14T01:37:09.6052708Z 
+deploy-pages	Install dependencies	2025-10-14T01:37:09.6053086Z found 0 vulnerabilities
+deploy-pages	Build application	﻿2025-10-14T01:37:09.6572870Z ##[group]Run npm run build
+deploy-pages	Build application	2025-10-14T01:37:09.6573220Z [36;1mnpm run build[0m
+deploy-pages	Build application	2025-10-14T01:37:09.6607668Z shell: /usr/bin/bash -e {0}
+deploy-pages	Build application	2025-10-14T01:37:09.6607939Z ##[endgroup]
+deploy-pages	Build application	2025-10-14T01:37:09.7709627Z 
+deploy-pages	Build application	2025-10-14T01:37:09.7710313Z > app@0.0.0 build
+deploy-pages	Build application	2025-10-14T01:37:09.7710769Z > tsc && vite build
+deploy-pages	Build application	2025-10-14T01:37:09.7710963Z 
+deploy-pages	Build application	2025-10-14T01:37:10.1705479Z [36mvite v7.1.9 [32mbuilding for production...[36m[39m
+deploy-pages	Build application	2025-10-14T01:37:10.2280547Z transforming...
+deploy-pages	Build application	2025-10-14T01:37:14.4575808Z [33msrc/sim/drv.ts (6:9): "PumpState" is not exported by "src/sim/model.ts", imported by "src/sim/drv.ts".[39m
+deploy-pages	Build application	2025-10-14T01:37:14.4577547Z [33msrc/sim/gauges.ts (6:9): "PumpState" is not exported by "src/sim/model.ts", imported by "src/sim/gauges.ts".[39m
+deploy-pages	Build application	2025-10-14T01:37:14.4579218Z [33msrc/sim/governor.ts (6:9): "PumpState" is not exported by "src/sim/model.ts", imported by "src/sim/governor.ts".[39m
+deploy-pages	Build application	2025-10-14T01:37:14.4580919Z [33msrc/sim/engine.ts (11:52): "GovernorState" is not exported by "src/sim/governor.ts", imported by "src/sim/engine.ts".[39m
+deploy-pages	Build application	2025-10-14T01:37:14.4582912Z [33msrc/training/quiz.ts (6:9): "PumpState" is not exported by "src/sim/model.ts", imported by "src/training/quiz.ts".[39m
+deploy-pages	Build application	2025-10-14T01:37:14.4584610Z [33msrc/ui/ScoreHUD.tsx (6:9): "QuizState" is not exported by "src/training/quiz.ts", imported by "src/ui/ScoreHUD.tsx".[39m
+deploy-pages	Build application	2025-10-14T01:37:14.4623764Z [33msrc/ui/SimulatorUI.tsx (12:27): "TrainingMode" is not exported by "src/ui/TrainingControls.tsx", imported by "src/ui/SimulatorUI.tsx".[39m
+deploy-pages	Build application	2025-10-14T01:37:14.4625739Z [33msrc/ui/SimulatorUI.tsx (15:9): "QuizState" is not exported by "src/training/quiz.ts", imported by "src/ui/SimulatorUI.tsx".[39m
+deploy-pages	Build application	2025-10-14T01:37:16.1904083Z [32m✓[39m 1692 modules transformed.
+deploy-pages	Build application	2025-10-14T01:37:16.4545716Z rendering chunks...
+deploy-pages	Build application	2025-10-14T01:37:16.6657265Z computing gzip size...
+deploy-pages	Build application	2025-10-14T01:37:16.6877694Z [2mdist/[22m[32mregisterSW.js                      [39m[1m[2m  0.13 kB[22m[1m[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6879126Z [2mdist/[22m[32mmanifest.webmanifest               [39m[1m[2m  0.50 kB[22m[1m[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6881235Z [2mdist/[22m[32mindex.html                         [39m[1m[2m  1.49 kB[22m[1m[22m[2m │ gzip:   0.71 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6883106Z [2mdist/[22m[2massets/[22m[35mindex-Cy5dd08C.css          [39m[1m[2m  6.76 kB[22m[1m[22m[2m │ gzip:   1.99 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6884833Z [2mdist/[22m[2massets/[22m[36mcolorToUniform-P9r_JAU7.js  [39m[1m[2m  4.11 kB[22m[1m[22m[2m │ gzip:   1.49 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6886599Z [2mdist/[22m[2massets/[22m[36mWebGPURenderer-CVY9WaDS.js  [39m[1m[2m 37.49 kB[22m[1m[22m[2m │ gzip:  10.31 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6888357Z [2mdist/[22m[2massets/[22m[36mbrowserAll-DyCJ_4Na.js      [39m[1m[2m 42.92 kB[22m[1m[22m[2m │ gzip:  11.23 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6890017Z [2mdist/[22m[2massets/[22m[36mSharedSystems-awqbw0bp.js   [39m[1m[2m 51.10 kB[22m[1m[22m[2m │ gzip:  13.81 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6892008Z [2mdist/[22m[2massets/[22m[36mWebGLRenderer-BKMSvt_f.js   [39m[1m[2m 63.26 kB[22m[1m[22m[2m │ gzip:  17.32 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6892984Z [33m
+deploy-pages	Build application	2025-10-14T01:37:16.6893595Z (!) Some chunks are larger than 500 kB after minification. Consider:
+deploy-pages	Build application	2025-10-14T01:37:16.6894419Z - Using dynamic import() to code-split the application
+deploy-pages	Build application	2025-10-14T01:37:16.6895913Z - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+deploy-pages	Build application	2025-10-14T01:37:16.6897611Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+deploy-pages	Build application	2025-10-14T01:37:16.6899227Z [2mdist/[22m[2massets/[22m[36mwebworkerAll-Cn1ynPoo.js    [39m[1m[2m 69.90 kB[22m[1m[22m[2m │ gzip:  19.74 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6900906Z [2mdist/[22m[2massets/[22m[36mindex-B9scttB8.js           [39m[1m[33m690.37 kB[39m[22m[2m │ gzip: 203.23 kB[22m
+deploy-pages	Build application	2025-10-14T01:37:16.6902117Z [32m✓ built in 6.50s[39m
+deploy-pages	Build application	2025-10-14T01:37:18.7687732Z 
+deploy-pages	Build application	2025-10-14T01:37:18.7699796Z [36mPWA v1.1.0[39m
+deploy-pages	Build application	2025-10-14T01:37:18.7702088Z mode      [35mgenerateSW[39m
+deploy-pages	Build application	2025-10-14T01:37:18.7702848Z precache  [32m12 entries[39m [2m(946.32 KiB)[22m
+deploy-pages	Build application	2025-10-14T01:37:18.7703347Z files generated
+deploy-pages	Build application	2025-10-14T01:37:18.7703779Z   [2mdist/sw.js[22m
+deploy-pages	Build application	2025-10-14T01:37:18.7704263Z   [2mdist/workbox-b833909e.js[22m
+deploy-pages	Deploy to Cloudflare Pages	﻿2025-10-14T01:37:18.8690808Z ##[group]Run cloudflare/wrangler-action@v3
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.8691133Z with:
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.8691918Z   apiToken: ***
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.8692305Z   accountId: ***
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.8692806Z   command: pages deploy dist --project-name=pump-panel-sim --branch=main
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.8693378Z   quiet: false
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.8693682Z ##[endgroup]
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.9649132Z ##[group]🔍 Checking for existing Wrangler installation
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:18.9690943Z [command]/opt/hostedtoolcache/node/20.19.5/x64/bin/npx --no-install wrangler --version
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:20.6360983Z npm error npx canceled due to missing packages and no YES option: ["wrangler@4.42.2"]
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:20.6368368Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2025-10-14T01_37_19_026Z-debug-0.log
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:20.6511672Z ⚠️ Wrangler not found or version is incompatible. Installing...
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:20.6512679Z ##[endgroup]
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:20.6513524Z ##[group]📥 Installing Wrangler
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:20.6538666Z [command]/opt/hostedtoolcache/node/20.19.5/x64/bin/npm i wrangler@3.90.0
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:26.2983838Z npm warn deprecated rollup-plugin-inject@3.0.2: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-inject.
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6094063Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6094957Z added 53 packages, and audited 690 packages in 9s
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6096078Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6096420Z 173 packages are looking for funding
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6097008Z   run `npm fund` for details
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6388530Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6389287Z 2 moderate severity vulnerabilities
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6390251Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6390715Z To address all issues (including breaking changes), run:
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6391308Z   npm audit fix --force
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6391826Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6392047Z Run `npm audit` for details.
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6612158Z ✅ Wrangler installed
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6612955Z ##[endgroup]
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6621804Z ##[group]🚀 Running Wrangler Commands
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:29.6644149Z [command]/opt/hostedtoolcache/node/20.19.5/x64/bin/npx wrangler pages deploy dist --project-name=pump-panel-sim --branch=main
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.4353426Z [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mPages now has wrangler.toml support.[0m
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.4354061Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.4355009Z   We detected a configuration file at /home/runner/work/pump-panel-sim/pump-panel-sim/wrangler.toml but it is missing the "pages_build_output_dir" field, required by Pages.
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.4356303Z   If you would like to use this configuration file to deploy your project, please use "pages_build_output_dir" to specify the directory of static files to upload.
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.4357117Z   Ignoring configuration file for now, and proceeding with project deploy.
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.4357416Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.4357423Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.9580900Z [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mWarning: Your working directory is a git repo and has uncommitted changes[0m
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.9583912Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.9584613Z   To silence this warning, pass in --commit-dirty=true
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.9585176Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:30.9585192Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:31.6081792Z Uploading... (17/17)
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:31.6088098Z ✨ Success! Uploaded 0 files (17 already uploaded) (0.38 sec)
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:31.6088616Z 
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:31.9169404Z ✨ Uploading _headers
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:33.1591345Z 🌎 Deploying...
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:36.5298580Z ✨ Deployment complete! Take a peek over at https://d6d982e3.pump-panel-sim.pages.dev
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:36.6659933Z ##[endgroup]
+deploy-pages	Deploy to Cloudflare Pages	2025-10-14T01:37:36.6660559Z 🏁 Wrangler Action completed
+deploy-pages	Post Setup Node.js	﻿2025-10-14T01:37:36.6746440Z Post job cleanup.
+deploy-pages	Post Setup Node.js	2025-10-14T01:37:36.8246159Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-60a779eb2156284c0acb6e0b4dbbfeb43a5432f2ffe790c6c5b1af2282b54eb6, not saving cache.
+deploy-pages	Post Checkout repository	﻿2025-10-14T01:37:36.8342089Z Post job cleanup.
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9271710Z [command]/usr/bin/git version
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9306670Z git version 2.51.0
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9349699Z Temporarily overriding HOME='/home/runner/work/_temp/14f304a5-5923-4fc8-995f-1780451dbc14' before making global git config changes
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9351221Z Adding repository directory to the temporary git global config as a safe directory
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9356382Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/pump-panel-sim/pump-panel-sim
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9391204Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9423717Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9646721Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9667170Z http.https://github.com/.extraheader
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9680394Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+deploy-pages	Post Checkout repository	2025-10-14T01:37:36.9720851Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+deploy-pages	Complete job	﻿2025-10-14T01:37:37.0087593Z Cleaning up orphan processes
