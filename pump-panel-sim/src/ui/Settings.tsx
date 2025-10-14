@@ -25,7 +25,7 @@ export function SettingsPanel({
   const [open, setOpen] = useState(false);
   const [instructorMode, setInstructorMode] = useState(false);
   const [room, setRoom] = useState('training-room-1');
-  const [workerUrl, setWorkerUrl] = useState('wss://your-worker.workers.dev');
+  const [workerUrl, setWorkerUrl] = useState('wss://pump-sim-instructor.pdarleyjr.workers.dev');
 
   // Initialize instructor hook
   const { connected } = useInstructor(room, workerUrl, instructorMode, dispatch);

@@ -77,11 +77,22 @@ npm run test:coverage      # Coverage report
 - [Screen Reader Testing](pump-panel-sim/SCREEN_READER_TESTING_GUIDE.md)
 - [Instructor Mode Guide](pump-panel-sim/INSTRUCTOR_MODE_GUIDE.md)
 
-## 🔗 Links
+## 🌐 Live Deployment
 
-- **Application**: [Deploy URL will be here]
-- **Documentation**: [Docs URL will be here]
-- **Issues**: [GitHub Issues]
+### Main Application
+- **URL**: https://fire-pump-panel-simulator.pages.dev
+- **Platform**: Cloudflare Pages
+- **Status**: ✅ Active
+
+### WebSocket Worker (Instructor Mode)
+- **URL**: wss://pump-sim-instructor.pdarleyjr.workers.dev
+- **Platform**: Cloudflare Durable Objects
+- **Status**: ✅ Active
+- **Documentation**: [`do-worker/DEPLOYMENT.md`](do-worker/DEPLOYMENT.md:1)
+
+### Repository
+- **GitHub**: https://github.com/pdarleyjr/pump-panel-sim
+- **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md:1)
 
 ## 📄 License
 

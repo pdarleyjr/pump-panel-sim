@@ -202,7 +202,7 @@ export class PanelLayout {
   public getTankToPumpPosition(): Position {
     return {
       x: 150,
-      y: 200,
+      y: 320, // Moved down to avoid compound intake gauge overlap
     };
   }
 
@@ -222,27 +222,27 @@ export class PanelLayout {
   public getPrimerPosition(): Position {
     return {
       x: 180,
-      y: 150,
+      y: 380, // Moved down to avoid overlaps
     };
   }
 
   /**
-   * Get position for DRV toggle control (near intake gauges, top area)
+   * Get position for DRV toggle control (below master gauges)
    */
   public getDRVTogglePosition(): Position {
     return {
-      x: this.width / 2 - 100,
-      y: 200,
+      x: this.width / 2 - 80,
+      y: 350, // Moved down significantly to avoid master discharge gauge
     };
   }
 
   /**
-   * Get position for DRV setpoint knob (near intake gauges, next to toggle)
+   * Get position for DRV setpoint knob (next to DRV toggle)
    */
   public getDRVSetpointPosition(): Position {
     return {
-      x: this.width / 2,
-      y: 200,
+      x: this.width / 2 + 80,
+      y: 350, // Same level as toggle, spread apart horizontally
     };
   }
 

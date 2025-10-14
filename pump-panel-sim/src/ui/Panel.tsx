@@ -32,20 +32,20 @@ export function Panel({ pumpState, diagnostics, onChange }: PanelProps) {
   // Initialize PixiJS application
   useEffect(() => {
     if (!containerRef.current) return;
-// Create PIXI application with optimized settings
-const app = new PIXI.Application();
 
-app.init({
-  resizeTo: window,
-  background: '#0b0e17',
-  antialias: true,
-  resolution: Math.min(window.devicePixelRatio ?? 1, 2), // Cap at 2x for performance
-  preference: 'webgl2',
-  autoDensity: true,
-  powerPreference: 'high-performance',
-  preserveDrawingBuffer: false, // Better performance
-  clearBeforeRender: true,
-}).then(() => {
+    // Create PIXI application with optimized settings
+    const app = new PIXI.Application();
+
+    app.init({
+      resizeTo: window,
+      background: '#0b0e17',
+      antialias: true,
+      resolution: Math.min(window.devicePixelRatio ?? 1, 2), // Cap at 2x for performance
+      preference: 'webgl2',
+      autoDensity: true,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: false, // Better performance
+      clearBeforeRender: true,
     }).then(() => {
       if (!containerRef.current) return;
       
@@ -74,25 +74,25 @@ app.init({
         }
       };
       window.addEventListener('resize', handleResize);
-
-      // Cleanup function with comprehensive resource disposal
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        if (managerRef.current) {
-          managerRef.current.destroy();
-          managerRef.current = null;
-        }
-        if (appRef.current) {
-          appRef.current.destroy({
-            children: true,
-            texture: true,
-            textureSource: true,
-            context: true,
-          }, true);
-          appRef.current = null;
-        }
-      };
     });
+
+    // Cleanup function with comprehensive resource disposal
+    return () => {
+      window.removeEventListener('resize', () => {});
+      if (managerRef.current) {
+        managerRef.current.destroy();
+        managerRef.current = null;
+      }
+      if (appRef.current) {
+        appRef.current.destroy({
+          children: true,
+          texture: true,
+          textureSource: true,
+          context: true,
+        }, true);
+        appRef.current = null;
+      }
+    };
   }, []); // Empty dependency array - only run once on mount
 
   // Update gauges when pump state changes

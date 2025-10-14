@@ -3,7 +3,7 @@
  * Provides state, solver results, and dispatch to all components
  */
 
-import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useRef, useMemo } from 'react';
 import { createInitialState } from './state';
 import type { SimState } from './state';
 import { reducer } from './actions';

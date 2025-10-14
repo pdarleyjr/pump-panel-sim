@@ -52,10 +52,9 @@ export default defineConfig({
     chunkSizeWarningLimit: 600, // 600 KB warning threshold
     // Optimize CSS
     cssCodeSplit: true,
-    // Enable module preload for faster initial loads
-    modulePreload: {
-      polyfill: true
-    }
+    // Disable module preload polyfill to maintain CSP compliance
+    // (polyfill injects inline scripts which violate CSP)
+    modulePreload: false
   },
   // PERFORMANCE: Optimized dev server
   server: {
