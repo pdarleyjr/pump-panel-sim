@@ -5,6 +5,9 @@
 
 import type { SimState, Discharge } from './state';
 import { hazenWilliamsFL, calculatePDP, estimateFlow } from '../hydraulics/formulas';
+import { getMasterIntakeWarnings } from './gauges';
+import { validateChangeoverSequence } from './interlocks';
+import { detectCavitation, applyPressureLimits } from './pump-curves';
 
 export interface SolverResult {
   totalGPM: number;
@@ -34,6 +37,22 @@ export function solveHydraulics(state: SimState): SolverResult {
       dischargeFlows: {},
       warnings: ['Pump not engaged'],
     };
+  }
+
+  // Pierce PUC: Check intake warnings
+  const intakeWarnings = getMasterIntakeWarnings(state);
+  warnings.push(...intakeWarnings);
+
+  // Pierce PUC: Check changeover sequence
+  const changeoverResult = validateChangeoverSequence(state);
+  if (!changeoverResult.valid) {
+    warnings.push(...changeoverResult.faults);
+  }
+
+  // Pierce PUC: Check cavitation
+  const cavitating = detectCavitation(state);
+  if (cavitating) {
+    warnings.push('CAVITATION DETECTED: Reduce throttle');
   }
 
   let totalGPM = 0;
@@ -69,13 +88,23 @@ export function solveHydraulics(state: SimState): SolverResult {
 
     // Foam consumption
     if (discharge.foamPct > 0 && flow > 0) {
-      const foamGPM = (flow * discharge.foamPct) / 100;
       // Note: actual foam tank depletion happens in the simulation loop
       if (state.pump.foamTankGallons < 5) {
         warnings.push(`Low foam: ${state.pump.foamTankGallons.toFixed(1)} gal`);
       }
     }
   });
+
+  // Pierce PUC: Apply pressure limits and relief valve
+  const pressureResult = applyPressureLimits(maxRequiredPDP);
+  maxRequiredPDP = pressureResult.actual;
+  
+  if (pressureResult.warning) {
+    warnings.push('HIGH PRESSURE WARNING: ≥ 350 PSI');
+  }
+  if (pressureResult.relieving) {
+    warnings.push('RELIEF VALVE OPEN: Pressure limited to 410 PSI');
+  }
 
   // Determine intake pressure based on water source
   let intakePsi = 0;

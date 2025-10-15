@@ -178,7 +178,7 @@ export class PressureGauge {
     this.gaugeGraphic.y = 0;
     
     // PERFORMANCE: Cache static gauge face as bitmap to reduce draw calls
-    this.gaugeGraphic.cacheAsBitmap = true;
+    this.gaugeGraphic.cacheAsTexture(true);
     
     this.container.addChild(this.gaugeGraphic);
 

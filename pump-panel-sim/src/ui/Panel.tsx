@@ -36,16 +36,15 @@ export function Panel({ pumpState, diagnostics, onChange }: PanelProps) {
 
     // Configure PixiJS settings to suppress deprecated WebGL parameter warnings
     // These settings prevent the use of deprecated UNPACK_PREMULTIPLY_ALPHA_WEBGL and UNPACK_FLIP_Y_WEBGL
-    PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL2; // Prefer WebGL2 which doesn't have these deprecated parameters
-    PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false; // Allow software rendering if needed
+    // Note: PIXI.settings and PIXI.ENV are not available in this version, using app.init options instead
 
     // Initialize PIXI Application with metallic aluminum background
     const app = new PIXI.Application();
     
     (async () => {
       await app.init({
-        width: 900,
-        height: 600,
+        width: window.innerWidth,
+        height: window.innerHeight,
         backgroundColor: 0xB8B8B8, // Metallic aluminum base color
         resolution: Math.min(window.devicePixelRatio || 1, 2), // Cap at 2 to prevent excessive memory usage
         autoDensity: true,
@@ -114,16 +113,24 @@ export function Panel({ pumpState, diagnostics, onChange }: PanelProps) {
 
       // Handle window resize
       const handleResize = () => {
-        if (managerRef.current) {
+        if (appRef.current && managerRef.current) {
+          // Resize the renderer
+          appRef.current.renderer.resize(window.innerWidth, window.innerHeight);
+          // Re-layout with new dimensions
           managerRef.current.resize(window.innerWidth, window.innerHeight);
         }
       };
+      
       window.addEventListener('resize', handleResize);
+      
+      // Store cleanup for resize listener
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
     })();
 
     // Cleanup function with comprehensive resource disposal
     return () => {
-      window.removeEventListener('resize', () => {});
       if (managerRef.current) {
         managerRef.current.destroy();
         managerRef.current = null;

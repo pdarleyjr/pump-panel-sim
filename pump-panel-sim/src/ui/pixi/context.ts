@@ -21,6 +21,34 @@
 
 import { Application } from 'pixi.js';
 
+export async function createPixiApp(view: HTMLCanvasElement, width: number, height: number) {
+  const app = new Application({
+    view,
+    width,
+    height,
+    antialias: true,
+    backgroundAlpha: 0,
+    autoStart: true,
+    // cap DPR to reduce memory pressure on HiDPI
+    resolution: Math.min(window.devicePixelRatio ?? 1, 2),
+  });
+
+  const canvas = app.view as HTMLCanvasElement;
+
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault(); // allow restoration path
+    console.warn('[WebGL] context lost');
+  });
+
+  canvas.addEventListener('webglcontextrestored', () => {
+    console.warn('[WebGL] context restored');
+    // If you create RenderTextures or custom shaders, recreate them here.
+    // Reload textures from the cache if needed.
+  });
+
+  return app;
+}
+
 export interface ContextGuards {
   isContextLost: () => boolean;
 }

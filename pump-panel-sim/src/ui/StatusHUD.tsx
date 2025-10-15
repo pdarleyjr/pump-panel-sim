@@ -85,6 +85,21 @@ export const StatusHUD = memo(function StatusHUD({
     <div className="status-hud">
       <div className="status-header">PUMP STATUS</div>
       
+      {/* ARIA live region for critical announcements */}
+      <div 
+        role="status" 
+        aria-live="assertive" 
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {/* Announce critical overpressure warnings */}
+        {overpressureWarnings.length > 0 && overpressureWarnings[0]}
+        {/* Announce governor warnings */}
+        {overpressureWarnings.length === 0 && governorWarnings.length > 0 && governorWarnings[0]}
+        {/* Announce DRV activation */}
+        {overpressureWarnings.length === 0 && governorWarnings.length === 0 && drvActive && drvStatusText}
+      </div>
+      
       <div className="status-grid">
         {/* Mode & Setpoint */}
         <div className="status-item">

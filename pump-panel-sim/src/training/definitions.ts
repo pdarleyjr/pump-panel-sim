@@ -84,3 +84,104 @@ export function searchDefinitions(keyword: string): string[] {
     .filter(([_, definition]) => definition.toLowerCase().includes(lowerKeyword))
     .map(([id]) => id);
 }
+
+/**
+ * Training scenario definition
+ */
+export interface TrainingScenario {
+  id: string;
+  title: string;
+  description: string;
+  setup: Record<string, any>;
+  objectives: string[];
+  faultConditions: string[];
+}
+
+/**
+ * Pierce PUC-specific training scenarios
+ * Educational scenarios matching the operational manual
+ */
+export const PIERCE_PUC_SCENARIOS: Record<string, TrainingScenario> = {
+  cavitation: {
+    id: 'cavitation',
+    title: 'Cavitation Detection',
+    description: 'Recognize and respond to pump cavitation',
+    setup: {
+      waterSource: 'draft',
+      intakePressure: -15, // High vacuum
+      throttlePercent: 80,
+    },
+    objectives: [
+      'Recognize cavitation symptoms',
+      'Reduce throttle to decrease flow demand',
+      'Check intake strainer for blockage',
+    ],
+    faultConditions: [
+      'Increasing throttle when cavitating',
+      'Ignoring vacuum gauge warnings',
+    ],
+  },
+  
+  changeover: {
+    id: 'changeover',
+    title: 'Tank-to-Hydrant Changeover',
+    description: 'Perform proper changeover from tank to hydrant',
+    setup: {
+      waterSource: 'tank',
+      tankLevel: 500,
+      dischargePressure: 150,
+    },
+    objectives: [
+      'Open intake gate valve',
+      'Verify intake pressure stable',
+      'Close tank-to-pump valve',
+      'Maintain discharge pressure throughout',
+    ],
+    faultConditions: [
+      'Opening both valves simultaneously',
+      'Closing tank valve before intake stabilizes',
+      'Pressure drop > 20 PSI during changeover',
+    ],
+  },
+  
+  overpressure: {
+    id: 'overpressure',
+    title: 'Overpressure Response',
+    description: 'Prevent and respond to overpressure conditions',
+    setup: {
+      throttlePercent: 90,
+      dischargePressure: 360,
+      allValvesClosed: true, // Dead-end scenario
+    },
+    objectives: [
+      'Recognize warning at 350 PSI',
+      'Reduce throttle immediately',
+      'Open a discharge line',
+      'Keep pressure < 400 PSI',
+    ],
+    faultConditions: [
+      'Exceeding 400 PSI',
+      'Continuing to increase throttle',
+    ],
+  },
+  
+  intakeMonitoring: {
+    id: 'intakeMonitoring',
+    title: 'Intake Pressure Monitoring',
+    description: 'Maintain adequate intake pressure on hydrant supply',
+    setup: {
+      waterSource: 'hydrant',
+      intakePressure: 25,
+      dischargePressure: 150,
+    },
+    objectives: [
+      'Monitor intake pressure',
+      'Maintain intake ≥ 20 PSI',
+      'Reduce flow if intake drops',
+    ],
+    faultConditions: [
+      'Allowing intake < 20 PSI for > 10 seconds',
+      'Increasing flow when intake is low',
+    ],
+  },
+};

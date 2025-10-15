@@ -6,6 +6,49 @@
 import type { SimState } from './state';
 
 /**
+ * Pierce PUC: Validate proper changeover sequence from tank to external intake
+ * 
+ * Proper procedure:
+ * 1. Open gated intake valve
+ * 2. Wait for pressure stabilization
+ * 3. Close tank-to-pump valve
+ * 4. Verify intake pressure maintained
+ * 
+ * @param state Current simulation state
+ * @returns Validation result with any faults detected
+ */
+export function validateChangeoverSequence(state: SimState): {
+  valid: boolean;
+  faults: string[];
+} {
+  const faults: string[] = [];
+  
+  // Check if both valves open simultaneously (forbidden)
+  const hasGatedIntake = Object.values(state.intakes).some(i => i.source === 'hydrant' || i.source === 'relay');
+  if (state.tankToPumpOpen && hasGatedIntake && state.pump.engaged) {
+    faults.push('CHANGEOVER FAULT: Both tank and intake valves open simultaneously');
+  }
+  
+  // Check if no water source available
+  if (!state.tankToPumpOpen && !hasGatedIntake && state.pump.engaged) {
+    const isDrafting = Object.values(state.intakes).some(i => i.source === 'draft');
+    if (!isDrafting) {
+      faults.push('NO WATER SOURCE: All intake valves closed');
+    }
+  }
+  
+  // Check pressure drop during changeover (inadequate intake)
+  if (state.pump.engaged && state.pump.pdp > 0 && state.pump.intakePsi < 10) {
+    faults.push('PRESSURE DROP: Inadequate intake during changeover');
+  }
+  
+  return {
+    valid: faults.length === 0,
+    faults,
+  };
+}
+
+/**
  * Check if throttle adjustment is allowed
  * Throttle can only be adjusted when pump is engaged
  */

@@ -1,7 +1,7 @@
 /**
  * Coordinates all UI elements for the pump panel
  * Manages controls, gauges, and their interaction with the simulation
- * UPDATED: 6-card grid-based layout system
+ * UPDATED: 6-card grid-based layout system with overlap detection
  */
 
 import * as PIXI from 'pixi.js';
@@ -16,6 +16,7 @@ import { LEDIndicator } from './indicators/LEDIndicator';
 import { FlowIndicator } from './indicators/FlowIndicator';
 import { StatusBadge } from './indicators/StatusBadge';
 import type { LEDIndicatorConfig, FlowIndicatorConfig, StatusBadgeConfig, StatusLevel } from './indicators/types';
+import { highlightOverlaps } from './debug/OverlapGuard';
 
 // Import all 6 card components
 import { MasterGaugesCard } from './cards/MasterGaugesCard';
@@ -92,6 +93,43 @@ export class PanelManager {
 
     // Create visual indicators
     this.createIndicators(layoutConfig);
+    
+    // Verify no overlaps in development mode
+    if (import.meta.env.DEV) {
+      this.verifyNoOverlaps();
+    }
+  }
+
+  /**
+   * Verify that no UI elements overlap (development only)
+   */
+  private verifyNoOverlaps(): void {
+    const containers: PIXI.Container[] = [];
+    
+    // Add all card containers
+    if (this.masterGaugesCard) containers.push(this.masterGaugesCard.getContainer());
+    if (this.crosslayCard) containers.push(this.crosslayCard.getContainer());
+    if (this.intakeCard) containers.push(this.intakeCard.getContainer());
+    if (this.largeDiameterCard) containers.push(this.largeDiameterCard.getContainer());
+    if (this.engineControlsCard) containers.push(this.engineControlsCard.getContainer());
+    if (this.tankFoamCard) containers.push(this.tankFoamCard.getContainer());
+    
+    // Set names on containers for better debugging
+    if (this.masterGaugesCard) this.masterGaugesCard.getContainer().name = 'MasterGaugesCard';
+    if (this.crosslayCard) this.crosslayCard.getContainer().name = 'CrosslayCard';
+    if (this.intakeCard) this.intakeCard.getContainer().name = 'IntakeCard';
+    if (this.largeDiameterCard) this.largeDiameterCard.getContainer().name = 'LargeDiameterCard';
+    if (this.engineControlsCard) this.engineControlsCard.getContainer().name = 'EngineControlsCard';
+    if (this.tankFoamCard) this.tankFoamCard.getContainer().name = 'TankFoamCard';
+    
+    // Check for overlaps
+    const overlapCount = highlightOverlaps(containers);
+    
+    if (overlapCount === 0) {
+      console.log('✅ [PanelManager] Layout verification complete: Zero overlaps detected');
+    } else {
+      console.error(`❌ [PanelManager] Layout verification failed: ${overlapCount} overlapping pairs detected`);
+    }
   }
 
   /**

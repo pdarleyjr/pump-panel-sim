@@ -120,7 +120,7 @@ export class KeyboardManager {
   /**
    * Handle key up events (for future use)
    */
-  private handleKeyUp = (event: KeyboardEvent): void => {
+  private handleKeyUp = (): void => {
     // Reserved for future functionality
   };
 
@@ -167,6 +167,9 @@ export class KeyboardManager {
       event.preventDefault();
     }
 
+    // Log action to console for screen reader integration
+    console.log(`[Keyboard Action] ${shortcut.id}: ${shortcut.description || 'Action triggered'}`);
+
     // Notify listeners that shortcut was triggered
     this.options.onShortcutTriggered(shortcut.id);
 
@@ -174,6 +177,50 @@ export class KeyboardManager {
     const action = this.getActionForShortcut(shortcut.id);
     if (action) {
       this.options.onAction(action);
+      
+      // Announce action for accessibility
+      this.announceAction(shortcut.id);
+    }
+  }
+  
+  /**
+   * Announce keyboard action for screen readers
+   */
+  private announceAction(shortcutId: string): void {
+    let message = '';
+    
+    switch (shortcutId) {
+      case 'throttle-increase':
+        message = 'Throttle increased';
+        break;
+      case 'throttle-decrease':
+        message = 'Throttle decreased';
+        break;
+      case 'throttle-max':
+        message = 'Throttle set to maximum';
+        break;
+      case 'throttle-idle':
+        message = 'Throttle set to idle';
+        break;
+      case 'pump-engage-toggle':
+        message = 'Pump engage toggled';
+        break;
+      case 'governor-mode-toggle':
+        message = 'Governor mode toggled';
+        break;
+      case 'primer-activate':
+        message = 'Primer activated';
+        break;
+      case 'drv-toggle':
+        message = 'Discharge relief valve toggled';
+        break;
+      default:
+        message = `Action: ${shortcutId}`;
+    }
+    
+    // Log for screen readers
+    if (message) {
+      console.log(`[Accessibility] ${message}`);
     }
   }
 

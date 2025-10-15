@@ -103,12 +103,16 @@ export class TankFoamCard {
   }
 
   private createTankFillRecircKnob(): void {
+    // Position relative to card dimensions
+    const leftColumn = this.config.width * 0.28;
+    const middleY = 90;
+    
     this.tankFillRecircKnob = new RotaryKnob(
       {
         id: 'tank_fill_recirc',
         type: 'rotary',
-        x: 50,
-        y: 90,
+        x: leftColumn,
+        y: middleY,
         label: 'Fill/Recirc',
         min: 0,
         max: 100,
@@ -123,12 +127,16 @@ export class TankFoamCard {
   }
 
   private createPrimerButton(): void {
+    // Position relative to card dimensions
+    const rightColumn = this.config.width * 0.72;
+    const middleY = 90;
+    
     this.primerButton = new Lever(
       {
         id: 'primer',
         type: 'lever',
-        x: 130,
-        y: 90,
+        x: rightColumn,
+        y: middleY,
         label: 'PRIMER',
         min: 0,
         max: 1,
@@ -145,13 +153,18 @@ export class TankFoamCard {
   }
 
   private createFoamControls(): void {
+    // Position relative to card dimensions
+    const leftColumn = this.config.width * 0.28;
+    const rightColumn = this.config.width * 0.72;
+    const bottomY = 145;
+    
     // Foam enable toggle
     this.foamEnableToggle = new Lever(
       {
         id: 'foam_enable',
         type: 'lever',
-        x: 50,
-        y: 145,
+        x: leftColumn,
+        y: bottomY,
         label: 'Foam',
         min: 0,
         max: 1,
@@ -171,8 +184,8 @@ export class TankFoamCard {
       {
         id: 'foam_percent',
         type: 'rotary',
-        x: 130,
-        y: 145,
+        x: rightColumn,
+        y: bottomY,
         label: 'Foam %',
         min: 0,
         max: 6,

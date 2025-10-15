@@ -65,12 +65,16 @@ export class EngineControlsCard {
   }
 
   private createThrottle(): void {
+    // Position relative to card dimensions
+    const leftColumn = this.config.width * 0.28;
+    const topSection = 50;
+    
     this.throttleLever = new Lever(
       {
         id: 'throttle',
         type: 'lever',
-        x: 50,
-        y: 50,
+        x: leftColumn,
+        y: topSection,
         label: 'Throttle',
         min: 0,
         max: 100,
@@ -87,12 +91,16 @@ export class EngineControlsCard {
   }
 
   private createGovernorToggle(): void {
+    // Position relative to card dimensions
+    const rightColumn = this.config.width * 0.72;
+    const topSection = 50;
+    
     this.governorToggle = new Lever(
       {
         id: 'governor_toggle',
         type: 'lever',
-        x: 130,
-        y: 50,
+        x: rightColumn,
+        y: topSection,
         label: 'Gov Mode',
         min: 0,
         max: 1,
@@ -109,12 +117,16 @@ export class EngineControlsCard {
   }
 
   private createDRVToggle(): void {
+    // Position relative to card dimensions
+    const leftColumn = this.config.width * 0.28;
+    const middleSection = 140;
+    
     this.drvToggle = new Lever(
       {
         id: 'drv_toggle',
         type: 'lever',
-        x: 50,
-        y: 140,
+        x: leftColumn,
+        y: middleSection,
         label: 'Relief Valve',
         min: 0,
         max: 1,
@@ -131,12 +143,16 @@ export class EngineControlsCard {
   }
 
   private createDRVSetpoint(): void {
+    // Position relative to card dimensions
+    const rightColumn = this.config.width * 0.72;
+    const middleSection = 165;
+    
     this.drvSetpoint = new RotaryKnob(
       {
         id: 'drv_setpoint',
         type: 'rotary',
-        x: 130,
-        y: 165,
+        x: rightColumn,
+        y: middleSection,
         label: 'Relief PSI',
         min: 75,
         max: 300,

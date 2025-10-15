@@ -25,13 +25,86 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* Full-window layout */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background: #101418;
+  overflow: hidden;
 }
 
+.app {
+  display: grid;
+  grid-template-columns: 1fr 360px; /* canvas + HUD */
+  grid-template-rows: 100%;
+  height: 100%;
+}
+
+.app__stage {
+  position: relative;
+  overflow: hidden;
+}
+
+.app__canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.app__hud {
+  overflow: auto;
+  background: #0b0f15;
+  border-left: 1px solid #1e2731;
+}
+
+/* Tablet landscape: reduce HUD width */
+@media (max-width: 1280px) {
+  .app {
+    grid-template-columns: 1fr 280px;
+  }
+}
+
+/* Tablet portrait: stack HUD below */
+@media (max-width: 768px) and (orientation: portrait) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+  
+  .app__hud {
+    max-height: 40vh;
+    border-left: none;
+    border-top: 1px solid #1e2731;
+  }
+}
+
+/* Small tablets and mobile landscape */
+@media (max-width: 1024px) and (orientation: landscape) {
+  .app {
+    grid-template-columns: 1fr 240px;
+  }
+  
+  .app__hud {
+    font-size: 0.9em;
+  }
+}
+
+/* Very small screens - prioritize canvas */
+@media (max-width: 640px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+  
+  .app__hud {
+    max-height: 35vh;
+    border-left: none;
+    border-top: 1px solid #1e2731;
+    font-size: 0.85em;
+  }
+}
+
+/* Legacy styles for backwards compatibility */
 .logo {
   height: 6em;
   padding: 1.5em;

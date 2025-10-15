@@ -68,6 +68,10 @@ export interface SimState {
   primed: boolean;
   isActivePriming: boolean;
   primingProgress: number;
+  warnings: string[];
+  trainingFaults: string[];
+  cavitating: boolean;
+  relievingPressure: boolean;
 }
 
 /**
@@ -109,5 +113,9 @@ export function createInitialState(): SimState {
     primed: false,
     isActivePriming: false,
     primingProgress: 0,
+    warnings: [],
+    trainingFaults: [],
+    cavitating: false,
+    relievingPressure: false,
   };
 }

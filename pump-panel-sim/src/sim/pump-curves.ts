@@ -9,10 +9,81 @@
  * 50% capacity: 750 GPM @ 250 PSI
  */
 
+import type { SimState } from './state';
+
 export interface PumpCapacity {
   flowGpm: number;
   pressurePsi: number;
   percentCapacity: number;
+}
+
+/**
+ * Pierce PUC pressure limits for overpressure protection
+ */
+export const PRESSURE_LIMITS = {
+  WARNING: 350,    // PSI - warning threshold
+  MAXIMUM: 400,    // PSI - hard limit (relief valve)
+  RELIEF_OPEN: 410, // PSI - relief valve fully open
+};
+
+/**
+ * Pierce PUC: Detect cavitation conditions
+ * Cavitation occurs when pump cannot get adequate intake water
+ * 
+ * @param state Current simulation state
+ * @returns True if cavitation is detected
+ */
+export function detectCavitation(state: SimState): boolean {
+  const primaryIntake = Object.values(state.intakes)[0];
+  const source = primaryIntake?.source || 'hydrant';
+  
+  // Cavitation condition 1: High vacuum when drafting
+  const highVacuum = source === 'draft' && 
+                     Math.abs(state.pump.intakePsi) * 2.036 > 20;
+  
+  // Cavitation condition 2: Inadequate intake pressure (pressurized sources)
+  const inadequateIntake = source !== 'draft' && 
+                           state.pump.intakePsi < 10 && 
+                           state.pump.engaged;
+  
+  // Cavitation condition 3: Flow drop despite throttle (simplified detection)
+  // This would require tracking expected vs actual flow
+  const flowDrop = state.pump.engaged && 
+                   state.pump.pdp > 0 && 
+                   state.pump.intakePsi < 5;
+  
+  return highVacuum || inadequateIntake || flowDrop;
+}
+
+/**
+ * Pierce PUC: Apply pressure limits and relief valve behavior
+ * 
+ * @param discharge Current discharge pressure
+ * @returns Adjusted pressure with warning/relief flags
+ */
+export function applyPressureLimits(discharge: number): {
+  actual: number;
+  warning: boolean;
+  relieving: boolean;
+} {
+  let actual = discharge;
+  let warning = false;
+  let relieving = false;
+  
+  if (discharge >= PRESSURE_LIMITS.WARNING) {
+    warning = true;
+  }
+  
+  if (discharge >= PRESSURE_LIMITS.RELIEF_OPEN) {
+    // Relief valve fully open - clamp pressure
+    actual = PRESSURE_LIMITS.RELIEF_OPEN;
+    relieving = true;
+  } else if (discharge > PRESSURE_LIMITS.MAXIMUM) {
+    // Relief valve partially open - reduce pressure
+    relieving = true;
+  }
+  
+  return { actual, warning, relieving };
 }
 
 /**

@@ -1,9 +1,10 @@
 /**
  * Layout manager for pump panel controls and gauges
- * 8×6 Grid-based redesign with responsive scaling for 900×600, 1024×768, and 1920×1080
+ * Grid-based redesign with responsive scaling
  */
 
 import type { DischargeId, IntakeId } from '../sim/model';
+import { computeGrid } from './layout/Grid';
 
 /**
  * Position for a control or gauge
@@ -114,7 +115,7 @@ interface GridConfig {
 
 /**
  * Manages layout of all panel controls and gauges
- * 8×6 Grid-based design with responsive support for 900×600, 1024×768, and 1920×1080
+ * 8×6 Grid-based design with responsive support
  */
 export class PanelLayout {
   private width: number;
@@ -127,9 +128,24 @@ export class PanelLayout {
     DESKTOP: { width: 1920, height: 1080 },
   };
   
-  // GRID SYSTEM CONSTANTS
+  // DESIGN CONSTANTS
+  private readonly DESIGN_WIDTH = 1920;
+  private readonly DESIGN_HEIGHT = 1080;
   private readonly GRID_COLUMNS = 8;
   private readonly GRID_ROWS = 6;
+  private readonly GRID_GAP = 24;
+  private readonly GRID_MARGIN = 24;
+  
+  // GRID SLOT MAPPINGS (based on Pierce PUC layout)
+  // [col, row, colSpan, rowSpan]
+  private readonly CARD_SLOTS = {
+    masterGauges: [0, 0, 2, 2] as [number, number, number, number],
+    engine: [4, 0, 2, 2] as [number, number, number, number],
+    crosslay: [0, 2, 2, 2] as [number, number, number, number],
+    intake: [2, 2, 2, 2] as [number, number, number, number],
+    tankFoam: [4, 2, 2, 2] as [number, number, number, number],
+    largeDiameter: [0, 4, 6, 2] as [number, number, number, number],
+  };
   
   // BASE DIMENSIONS (900×600)
   private readonly BASE_MARGIN = 20;
@@ -213,15 +229,15 @@ export class PanelLayout {
     const scale = this.getScaleFactor();
     
     const layout: PanelLayoutConfig = {
-      cards: this.getCardPositions(scale),
+      cards: this.getCardPositions(),
       intakeGauges: this.getIntakeGaugePositions(scale),
-      dischargeValves: this.getDischargeValvePositions(scale),
+      dischargeValves: this.getDischargeValvePositions(),
       throttle: this.getThrottlePosition(scale),
       foamEnable: this.getFoamEnablePosition(scale),
       foamPercent: this.getFoamPercentPosition(scale),
       waterTank: this.getWaterTankPosition(scale),
       foamTank: this.getFoamTankPosition(scale),
-      tankToPump: this.getTankToPumpPosition(scale),
+      tankToPump: this.getTankToPumpPosition(),
       tankFillRecirc: this.getTankFillRecircPosition(scale),
       primer: this.getPrimerPosition(scale),
       drvToggle: this.getDRVTogglePosition(scale),
@@ -240,56 +256,59 @@ export class PanelLayout {
 
   /**
    * Get card positions and dimensions with 8×6 grid-based layout
-   * SIX CARDS positioned according to design specification
+   * Uses grid computation to ensure no overlaps
    */
-  private getCardPositions(scale: number = 1.0): PanelLayoutConfig['cards'] {
+  private getCardPositions(): PanelLayoutConfig['cards'] {
+    // Compute grid placements using the grid layout engine
+    const { placements } = computeGrid({
+      designWidth: this.DESIGN_WIDTH,
+      designHeight: this.DESIGN_HEIGHT,
+      viewportWidth: this.width,
+      viewportHeight: this.height,
+      cols: this.GRID_COLUMNS,
+      rows: this.GRID_ROWS,
+      gap: this.GRID_GAP,
+      margin: this.GRID_MARGIN,
+      slots: this.CARD_SLOTS,
+    });
+
+    // Map placements to card dimensions
     return {
-      // Card 1 - Master Gauges (top-left)
       masterGauges: {
-        x: 20 * scale,
-        y: 20 * scale,
-        width: 280 * scale,
-        height: 260 * scale,
+        x: placements.masterGauges.x,
+        y: placements.masterGauges.y,
+        width: placements.masterGauges.w,
+        height: placements.masterGauges.h,
       },
-      
-      // Card 2 - Crosslay (middle-left)
-      crosslay: {
-        x: 20 * scale,
-        y: 280 * scale,
-        width: 240 * scale,
-        height: 160 * scale,
-      },
-      
-      // Card 3 - Intake (middle-center-left)
-      intake: {
-        x: 290 * scale,
-        y: 280 * scale,
-        width: 200 * scale,
-        height: 180 * scale,
-      },
-      
-      // Card 4 - Large Diameter (bottom, spans multiple columns)
-      largeDiameter: {
-        x: 20 * scale,
-        y: 470 * scale,
-        width: 520 * scale,
-        height: 160 * scale,
-      },
-      
-      // Card 5 - Engine Controls (middle-center-right)
       engineControls: {
-        x: 520 * scale,
-        y: 280 * scale,
-        width: 180 * scale,
-        height: 260 * scale,
+        x: placements.engine.x,
+        y: placements.engine.y,
+        width: placements.engine.w,
+        height: placements.engine.h,
       },
-      
-      // Card 6 - Tank & Foam (middle-right)
+      crosslay: {
+        x: placements.crosslay.x,
+        y: placements.crosslay.y,
+        width: placements.crosslay.w,
+        height: placements.crosslay.h,
+      },
+      intake: {
+        x: placements.intake.x,
+        y: placements.intake.y,
+        width: placements.intake.w,
+        height: placements.intake.h,
+      },
       tankFoam: {
-        x: 720 * scale,
-        y: 280 * scale,
-        width: 180 * scale,
-        height: 180 * scale,
+        x: placements.tankFoam.x,
+        y: placements.tankFoam.y,
+        width: placements.tankFoam.w,
+        height: placements.tankFoam.h,
+      },
+      largeDiameter: {
+        x: placements.largeDiameter.x,
+        y: placements.largeDiameter.y,
+        width: placements.largeDiameter.w,
+        height: placements.largeDiameter.h,
       },
     };
   }
@@ -395,7 +414,7 @@ export class PanelLayout {
   /**
    * Get positions for discharge valves NOT in cards
    */
-  public getDischargeValvePositions(_scale: number = 1.0): Record<DischargeId, Position> {
+  public getDischargeValvePositions(): Record<DischargeId, Position> {
     // Most discharges are now in cards, legacy positions set to 0,0
     return {
       xlay1: { x: 0, y: 0 }, // In crosslay card
@@ -414,7 +433,7 @@ export class PanelLayout {
   /**
    * Legacy positions for controls now in cards
    */
-  public getTankToPumpPosition(_scale: number = 1.0): Position {
+  public getTankToPumpPosition(): Position {
     return { x: 0, y: 0 }; // Now in intake card
   }
 

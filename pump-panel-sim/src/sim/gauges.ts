@@ -5,6 +5,56 @@
  * Blueprint ref: Lines 12, 15, 19, 152, 159-160, 236, 238
  */
 
+import type { SimState } from './state';
+
+/**
+ * Pierce PUC: Compute master intake gauge reading based on water source
+ * Automatically switches between PSI (pressurized) and inHg (draft) display
+ * 
+ * @param state Current simulation state
+ * @returns Gauge reading in appropriate units (negative for vacuum)
+ */
+export function computeMasterIntake(state: SimState): number {
+  const primaryIntake = Object.values(state.intakes)[0];
+  const source = primaryIntake?.source || 'hydrant';
+  
+  if (source === 'draft') {
+    // Draft mode: show vacuum in inHg (negative pressure)
+    // Convert PSI to inHg: 1 PSI ≈ 2.036 inHg
+    const vacuum = Math.abs(state.pump.intakePsi) * 2.036;
+    return -vacuum; // Negative for vacuum display
+  }
+  
+  // Hydrant/Tank/Relay mode: show positive PSI
+  return state.pump.intakePsi;
+}
+
+/**
+ * Pierce PUC: Get master intake warnings based on water source
+ * 
+ * @param state Current simulation state
+ * @returns Array of warning messages
+ */
+export function getMasterIntakeWarnings(state: SimState): string[] {
+  const warnings: string[] = [];
+  const primaryIntake = Object.values(state.intakes)[0];
+  const source = primaryIntake?.source || 'hydrant';
+  
+  if (source === 'draft') {
+    const vacuum = Math.abs(state.pump.intakePsi) * 2.036;
+    if (vacuum > 20) {
+      warnings.push('HIGH VACUUM: Risk of cavitation');
+    }
+  } else {
+    // Pressurized source (hydrant, tank, relay)
+    if (state.pump.intakePsi < 20 && state.pump.engaged) {
+      warnings.push('LOW INTAKE PRESSURE: < 20 PSI');
+    }
+  }
+  
+  return warnings;
+}
+
 /**
  * Calculate intake gauge reading (compound gauge: PSI or vacuum)
  * 
@@ -142,8 +192,8 @@ export function getPumpStatus(state: any): PumpStatus {
   const warnings: string[] = [];
   if (intakeData.warning) warnings.push(intakeData.warning);
   if (dischargeData.warning) warnings.push(dischargeData.warning);
-  if (state.warnings) {
-    warnings.push(...Array.from(state.warnings));
+  if (state.warnings && Array.isArray(state.warnings)) {
+    warnings.push(...state.warnings);
   }
   
   // Determine mode from governor
