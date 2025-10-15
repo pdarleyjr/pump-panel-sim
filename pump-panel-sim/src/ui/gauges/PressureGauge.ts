@@ -64,6 +64,7 @@ export class PressureGauge {
   private startAngle: number = -Math.PI * 3 / 4; // -135°
   private endAngle: number = Math.PI * 3 / 4;    // 135°
   private tickerUpdateBound: ((ticker: PIXI.Ticker) => void) | null = null;
+  private currentNeedleColor: number = 0x000000;
 
   constructor(config: GaugeConfig) {
     this.config = config;

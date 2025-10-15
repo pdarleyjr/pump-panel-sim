@@ -234,7 +234,6 @@ export async function playPrimerStart(): Promise<void> {
     });
     primerLFO.connect(primerFilter.frequency);
     primerLFO.start();
-    lfo.start();
 
     // Add occasional "surges" in the primer sound
     primerLoop = new Tone.Loop((time) => {

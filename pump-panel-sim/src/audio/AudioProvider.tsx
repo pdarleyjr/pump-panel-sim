@@ -3,60 +3,29 @@
  * Integrates Tone.js synthesized audio with simulation state
  */
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
-import * as Tone from 'tone';
-import { isAudioReady } from './boot';
+import { isAudioReady, getTone } from './boot';
 import { vibrateClick, vibrateValve } from './haptics';
-
-// Engine sounds
-import { 
-  startEngineSound, 
-  stopEngineSound, 
-  updateEngineRPM, 
-  isEngineSoundActive 
-} from './engine';
-
-// Control sounds
-import {
-  playTankValveOpen,
-  playTankValveClose,
-  playDischargeValveOpen,
-  playDischargeValveClose,
-  playDRVToggle,
-  playGovernorSwitch,
-  playPrimerStart,
-  stopPrimer,
-  playPumpEngage,
-  playPumpDisengage,
-  playButtonClick,
-} from './controls';
-
-// Alarm sounds
-import {
-  playOverpressureAlarm,
-  stopOverpressureAlarm,
-  playCavitationSound,
-  stopCavitationSound,
-  playOverheatingWarning,
-  stopOverheatingWarning,
-  playTankEmptyChime,
-  stopAllAlarms,
-} from './alarms';
-
-// Ambient sounds
-import {
-  startWaterFlow,
-  stopWaterFlow,
-  updateWaterFlowVolume,
-  playFoamActivation,
-  stopFoamSound,
-  playHoseBurst,
-  playPressureRelief,
-  stopAllAmbient,
-} from './ambient';
 
 // Import simulation context types
 import type { SimState } from '../sim/state';
 import type { SolverResult } from '../sim/solver';
+
+// Dynamic audio module imports to prevent AudioContext creation on page load
+let engineModule: typeof import('./engine') | null = null;
+let controlsModule: typeof import('./controls') | null = null;
+let alarmsModule: typeof import('./alarms') | null = null;
+let ambientModule: typeof import('./ambient') | null = null;
+
+async function loadAudioModules() {
+  if (!engineModule) {
+    [engineModule, controlsModule, alarmsModule, ambientModule] = await Promise.all([
+      import('./engine'),
+      import('./controls'),
+      import('./alarms'),
+      import('./ambient'),
+    ]);
+  }
+}
 
 interface AudioCtx {
   enabled: boolean;
@@ -68,9 +37,9 @@ interface AudioCtx {
   setMasterVolume: (volume: number) => void;
   setMuted: (muted: boolean) => void;
   // Control sounds
-  playClick: typeof playButtonClick;
-  playValveOpen: typeof playTankValveOpen;
-  playValveClose: typeof playTankValveClose;
+  playClick: () => Promise<void>;
+  playValveOpen: () => Promise<void>;
+  playValveClose: () => Promise<void>;
   vibrateClick: typeof vibrateClick;
   vibrateValve: typeof vibrateValve;
 }
@@ -84,9 +53,9 @@ const Ctx = createContext<AudioCtx>({
   stop: () => {},
   setMasterVolume: () => {},
   setMuted: () => {},
-  playClick: playButtonClick,
-  playValveOpen: playTankValveOpen,
-  playValveClose: playTankValveClose,
+  playClick: async () => {},
+  playValveOpen: async () => {},
+  playValveClose: async () => {},
   vibrateClick,
   vibrateValve,
 });
@@ -127,10 +96,21 @@ export function AudioProvider({ children, simState, simResult }: AudioProviderPr
 
   // Master volume control
   useEffect(() => {
-    if (audioReady) {
-      Tone.getDestination().volume.value = muted 
-        ? -Infinity 
-        : Tone.gainToDb(masterVolume);
+    // Only access Tone if audio is ready - prevents AudioContext creation on mount
+    if (!audioReady) return;
+    
+    const Tone = getTone();
+    if (!Tone) return;
+    
+    try {
+      const context = Tone.getContext();
+      if (context.state === 'running') {
+        Tone.getDestination().volume.value = muted 
+          ? -Infinity 
+          : Tone.gainToDb(masterVolume);
+      }
+    } catch {
+      // Safe to ignore if context not ready
     }
   }, [masterVolume, muted, audioReady]);
 
@@ -140,13 +120,19 @@ export function AudioProvider({ children, simState, simResult }: AudioProviderPr
   };
 
   const stop = () => {
-    // Stop all active sounds
-    stopEngineSound();
-    stopAllAlarms();
-    stopAllAmbient();
-    stopPrimer();
+    if (!engineModule) return;
     
-    Tone.getContext().rawContext.suspend();
+    // Stop all active sounds
+    engineModule.stopEngineSound();
+    alarmsModule?.stopAllAlarms();
+    ambientModule?.stopAllAmbient();
+    controlsModule?.stopPrimer();
+    
+    // Only suspend if context is running
+    const Tone = getTone();
+    if (audioReady && Tone && Tone.getContext().state === 'running') {
+      Tone.getContext().rawContext.suspend();
+    }
     setEnabled(false);
   };
 
@@ -162,184 +148,206 @@ export function AudioProvider({ children, simState, simResult }: AudioProviderPr
   useEffect(() => {
     if (!enabled || !audioReady || !simState || !simResult) return;
 
-    const prevState = prevStateRef.current;
-    const prevResult = prevResultRef.current;
+    // Load audio modules dynamically
+    loadAudioModules().then(() => {
+      if (!engineModule || !controlsModule || !alarmsModule || !ambientModule) return;
 
-    // === ENGINE SOUNDS ===
-    if (simState.pump.engaged) {
-      // Start engine sound if not already active
-      if (!isEngineSoundActive()) {
-        startEngineSound();
-      }
-      
-      // Update engine RPM
-      updateEngineRPM(simState.pump.rpm);
-    } else {
-      // Stop engine sound when pump disengages
-      if (isEngineSoundActive()) {
-        stopEngineSound();
-      }
-    }
+      const prevState = prevStateRef.current;
+      const prevResult = prevResultRef.current;
 
-    // === PUMP ENGAGE/DISENGAGE SOUNDS ===
-    if (prevState && prevState.pump.engaged !== simState.pump.engaged) {
+      // === ENGINE SOUNDS ===
       if (simState.pump.engaged) {
-        playPumpEngage();
-      } else {
-        playPumpDisengage();
-      }
-    }
-
-    // === TANK-TO-PUMP VALVE SOUNDS ===
-    if (prevState && prevState.tankToPumpOpen !== simState.tankToPumpOpen) {
-      if (simState.tankToPumpOpen) {
-        playTankValveOpen();
-        vibrateValve();
-      } else {
-        playTankValveClose();
-        vibrateValve();
-      }
-    }
-
-    // === DISCHARGE VALVE SOUNDS ===
-    if (prevState) {
-      Object.entries(simState.discharges).forEach(([id, discharge]) => {
-        const prevDischarge = prevState.discharges[id];
-        if (prevDischarge) {
-          // Detect valve opening/closing
-          if (discharge.open > 0.1 && prevDischarge.open <= 0.1) {
-            playDischargeValveOpen();
-            vibrateValve();
-          } else if (discharge.open <= 0.1 && prevDischarge.open > 0.1) {
-            playDischargeValveClose();
-            vibrateValve();
-          }
+        // Start engine sound if not already active
+        if (!engineModule.isEngineSoundActive()) {
+          engineModule.startEngineSound();
         }
-      });
-    }
+        
+        // Update engine RPM
+        engineModule.updateEngineRPM(simState.pump.rpm);
+      } else {
+        // Stop engine sound when pump disengages
+        if (engineModule.isEngineSoundActive()) {
+          engineModule.stopEngineSound();
+        }
+      }
 
-    // === GOVERNOR MODE SWITCH ===
-    if (prevState && prevState.pump.governor !== simState.pump.governor) {
-      playGovernorSwitch();
-      vibrateClick();
-    }
+      // === PUMP ENGAGE/DISENGAGE SOUNDS ===
+      if (prevState && prevState.pump.engaged !== simState.pump.engaged) {
+        if (simState.pump.engaged) {
+          controlsModule.playPumpEngage();
+        } else {
+          controlsModule.playPumpDisengage();
+        }
+      }
 
-    // === PRIMER SOUNDS ===
-    if (simState.isActivePriming && !activeAlarmsRef.current.primerActive) {
-      playPrimerStart();
-      activeAlarmsRef.current.primerActive = true;
-    } else if (!simState.isActivePriming && activeAlarmsRef.current.primerActive) {
-      stopPrimer();
-      activeAlarmsRef.current.primerActive = false;
-    }
+      // === TANK-TO-PUMP VALVE SOUNDS ===
+      if (prevState && prevState.tankToPumpOpen !== simState.tankToPumpOpen) {
+        if (simState.tankToPumpOpen) {
+          controlsModule.playTankValveOpen();
+          vibrateValve();
+        } else {
+          controlsModule.playTankValveClose();
+          vibrateValve();
+        }
+      }
 
-    // === WATER FLOW AMBIENT ===
-    if (simResult.totalGPM > 0 && !activeAlarmsRef.current.waterFlowActive) {
-      startWaterFlow();
-      activeAlarmsRef.current.waterFlowActive = true;
-    } else if (simResult.totalGPM === 0 && activeAlarmsRef.current.waterFlowActive) {
-      stopWaterFlow();
-      activeAlarmsRef.current.waterFlowActive = false;
-    }
+      // === DISCHARGE VALVE SOUNDS ===
+      if (prevState) {
+        Object.entries(simState.discharges).forEach(([id, discharge]) => {
+          const prevDischarge = prevState.discharges[id];
+          if (prevDischarge) {
+            // Detect valve opening/closing
+            if (discharge.open > 0.1 && prevDischarge.open <= 0.1) {
+              controlsModule!.playDischargeValveOpen();
+              vibrateValve();
+            } else if (discharge.open <= 0.1 && prevDischarge.open > 0.1) {
+              controlsModule!.playDischargeValveClose();
+              vibrateValve();
+            }
+          }
+        });
+      }
 
-    // Update water flow volume based on total GPM
-    if (activeAlarmsRef.current.waterFlowActive) {
-      updateWaterFlowVolume(simResult.totalGPM);
-    }
+      // === GOVERNOR MODE SWITCH ===
+      if (prevState && prevState.pump.governor !== simState.pump.governor) {
+        controlsModule.playGovernorSwitch();
+        vibrateClick();
+      }
 
-    // === FOAM SYSTEM ===
-    const anyFoamActive = Object.values(simState.discharges).some(
-      d => d.foamPct > 0 && d.open > 0
-    );
-    
-    if (anyFoamActive && simState.pump.foamSystemEnabled && !activeAlarmsRef.current.foamActive) {
-      playFoamActivation();
-      activeAlarmsRef.current.foamActive = true;
-    } else if ((!anyFoamActive || !simState.pump.foamSystemEnabled) && activeAlarmsRef.current.foamActive) {
-      stopFoamSound();
-      activeAlarmsRef.current.foamActive = false;
-    }
+      // === PRIMER SOUNDS ===
+      if (simState.isActivePriming && !activeAlarmsRef.current.primerActive) {
+        controlsModule.playPrimerStart();
+        activeAlarmsRef.current.primerActive = true;
+      } else if (!simState.isActivePriming && activeAlarmsRef.current.primerActive) {
+        controlsModule.stopPrimer();
+        activeAlarmsRef.current.primerActive = false;
+      }
 
-    // === ALARMS ===
-    
-    // Overpressure alarm (>400 PSI)
-    const isOverpressure = simState.pump.pdp > 400;
-    if (isOverpressure && !activeAlarmsRef.current.overpressure) {
-      playOverpressureAlarm();
-      activeAlarmsRef.current.overpressure = true;
-    } else if (!isOverpressure && activeAlarmsRef.current.overpressure) {
-      stopOverpressureAlarm();
-      activeAlarmsRef.current.overpressure = false;
-    }
+      // === WATER FLOW AMBIENT ===
+      if (simResult.totalGPM > 0 && !activeAlarmsRef.current.waterFlowActive) {
+        ambientModule.startWaterFlow();
+        activeAlarmsRef.current.waterFlowActive = true;
+      } else if (simResult.totalGPM === 0 && activeAlarmsRef.current.waterFlowActive) {
+        ambientModule.stopWaterFlow();
+        activeAlarmsRef.current.waterFlowActive = false;
+      }
 
-    // Cavitation detection (from warnings)
-    const isCavitating = simResult.warnings.some(w => 
-      w.toLowerCase().includes('cavitat') || w.toLowerCase().includes('starv')
-    );
-    if (isCavitating && !activeAlarmsRef.current.cavitation) {
-      playCavitationSound();
-      activeAlarmsRef.current.cavitation = true;
-    } else if (!isCavitating && activeAlarmsRef.current.cavitation) {
-      stopCavitationSound();
-      activeAlarmsRef.current.cavitation = false;
-    }
+      // Update water flow volume based on total GPM
+      if (activeAlarmsRef.current.waterFlowActive) {
+        ambientModule.updateWaterFlowVolume(simResult.totalGPM);
+      }
 
-    // Overheating warnings (check if state has temperature data)
-    const hasOverheating = simResult.warnings.some(w => 
-      w.toLowerCase().includes('overheat') || w.toLowerCase().includes('temperature')
-    );
-    
-    if (hasOverheating && !activeAlarmsRef.current.overheating) {
-      // Determine severity from warning text
-      const warningText = simResult.warnings.find(w => 
+      // === FOAM SYSTEM ===
+      const anyFoamActive = Object.values(simState.discharges).some(
+        d => d.foamPct > 0 && d.open > 0
+      );
+      
+      if (anyFoamActive && simState.pump.foamSystemEnabled && !activeAlarmsRef.current.foamActive) {
+        ambientModule.playFoamActivation();
+        activeAlarmsRef.current.foamActive = true;
+      } else if ((!anyFoamActive || !simState.pump.foamSystemEnabled) && activeAlarmsRef.current.foamActive) {
+        ambientModule.stopFoamSound();
+        activeAlarmsRef.current.foamActive = false;
+      }
+
+      // === ALARMS ===
+      
+      // Overpressure alarm (>400 PSI)
+      const isOverpressure = simState.pump.pdp > 400;
+      if (isOverpressure && !activeAlarmsRef.current.overpressure) {
+        alarmsModule.playOverpressureAlarm();
+        activeAlarmsRef.current.overpressure = true;
+      } else if (!isOverpressure && activeAlarmsRef.current.overpressure) {
+        alarmsModule.stopOverpressureAlarm();
+        activeAlarmsRef.current.overpressure = false;
+      }
+
+      // Cavitation detection (from warnings)
+      const isCavitating = simResult.warnings.some(w => 
+        w.toLowerCase().includes('cavitat') || w.toLowerCase().includes('starv')
+      );
+      if (isCavitating && !activeAlarmsRef.current.cavitation) {
+        alarmsModule.playCavitationSound();
+        activeAlarmsRef.current.cavitation = true;
+      } else if (!isCavitating && activeAlarmsRef.current.cavitation) {
+        alarmsModule.stopCavitationSound();
+        activeAlarmsRef.current.cavitation = false;
+      }
+
+      // Overheating warnings (check if state has temperature data)
+      const hasOverheating = simResult.warnings.some(w => 
         w.toLowerCase().includes('overheat') || w.toLowerCase().includes('temperature')
       );
       
-      let severity: 'warning' | 'critical' | 'danger' = 'warning';
-      if (warningText) {
-        if (warningText.toLowerCase().includes('danger') || warningText.toLowerCase().includes('critical')) {
-          severity = 'danger';
-        } else if (warningText.toLowerCase().includes('hot')) {
-          severity = 'critical';
+      if (hasOverheating && !activeAlarmsRef.current.overheating) {
+        // Determine severity from warning text
+        const warningText = simResult.warnings.find(w => 
+          w.toLowerCase().includes('overheat') || w.toLowerCase().includes('temperature')
+        );
+        
+        let severity: 'warning' | 'critical' | 'danger' = 'warning';
+        if (warningText) {
+          if (warningText.toLowerCase().includes('danger') || warningText.toLowerCase().includes('critical')) {
+            severity = 'danger';
+          } else if (warningText.toLowerCase().includes('hot')) {
+            severity = 'critical';
+          }
+        }
+        
+        alarmsModule.playOverheatingWarning(severity);
+        activeAlarmsRef.current.overheating = true;
+      } else if (!hasOverheating && activeAlarmsRef.current.overheating) {
+        alarmsModule.stopOverheatingWarning();
+        activeAlarmsRef.current.overheating = false;
+      }
+
+      // Tank empty warning
+      if (prevState && simState.pump.foamTankGallons === 0 && prevState.pump.foamTankGallons > 0) {
+        alarmsModule.playTankEmptyChime();
+      }
+
+      // === HOSE BURST EVENT ===
+      // This would be triggered by a specific action or instructor control
+      // For now, we'll detect it from warnings
+      if (prevResult && simResult.warnings.some(w => w.toLowerCase().includes('burst'))) {
+        if (!prevResult.warnings.some(w => w.toLowerCase().includes('burst'))) {
+          ambientModule.playHoseBurst();
         }
       }
-      
-      playOverheatingWarning(severity);
-      activeAlarmsRef.current.overheating = true;
-    } else if (!hasOverheating && activeAlarmsRef.current.overheating) {
-      stopOverheatingWarning();
-      activeAlarmsRef.current.overheating = false;
-    }
 
-    // Tank empty warning
-    if (prevState && simState.pump.foamTankGallons === 0 && prevState.pump.foamTankGallons > 0) {
-      playTankEmptyChime();
-    }
-
-    // === HOSE BURST EVENT ===
-    // This would be triggered by a specific action or instructor control
-    // For now, we'll detect it from warnings
-    if (prevResult && simResult.warnings.some(w => w.toLowerCase().includes('burst'))) {
-      if (!prevResult.warnings.some(w => w.toLowerCase().includes('burst'))) {
-        playHoseBurst();
-      }
-    }
-
-    // Store current state for next comparison
-    prevStateRef.current = simState;
-    prevResultRef.current = simResult;
+      // Store current state for next comparison
+      prevStateRef.current = simState;
+      prevResultRef.current = simResult;
+    });
 
   }, [enabled, audioReady, simState, simResult]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopEngineSound();
-      stopAllAlarms();
-      stopAllAmbient();
-      stopPrimer();
+      if (!engineModule) return;
+      engineModule.stopEngineSound();
+      alarmsModule?.stopAllAlarms();
+      ambientModule?.stopAllAmbient();
+      controlsModule?.stopPrimer();
     };
   }, []);
+
+  // Proxy functions for UI controls
+  const playClick = async () => {
+    await loadAudioModules();
+    return controlsModule?.playButtonClick();
+  };
+
+  const playValveOpen = async () => {
+    await loadAudioModules();
+    return controlsModule?.playTankValveOpen();
+  };
+
+  const playValveClose = async () => {
+    await loadAudioModules();
+    return controlsModule?.playTankValveClose();
+  };
 
   return (
     <Ctx.Provider value={{
@@ -351,9 +359,9 @@ export function AudioProvider({ children, simState, simResult }: AudioProviderPr
       stop,
       setMasterVolume,
       setMuted,
-      playClick: playButtonClick,
-      playValveOpen: playTankValveOpen,
-      playValveClose: playTankValveClose,
+      playClick,
+      playValveOpen,
+      playValveClose,
       vibrateClick,
       vibrateValve,
     }}>

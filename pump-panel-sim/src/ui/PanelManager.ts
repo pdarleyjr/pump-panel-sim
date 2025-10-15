@@ -1,13 +1,13 @@
 /**
  * Coordinates all UI elements for the pump panel
  * Manages controls, gauges, and their interaction with the simulation
- * UPDATED: Card-based redesign with 25% size reduction
+ * UPDATED: 6-card grid-based layout system
  */
 
 import * as PIXI from 'pixi.js';
 import type { PumpState, DischargeId, IntakeId } from '../sim/model';
 import type { SimulationDiagnostics } from '../sim/engine';
-import { ControlType, type ControlEvent } from './controls/types';
+import { type ControlEvent } from './controls/types';
 import { RotaryKnob } from './controls/RotaryKnob';
 import { Lever } from './controls/Lever';
 import { PressureGauge, type GaugeConfig } from './gauges/PressureGauge';
@@ -17,10 +17,13 @@ import { FlowIndicator } from './indicators/FlowIndicator';
 import { StatusBadge } from './indicators/StatusBadge';
 import type { LEDIndicatorConfig, FlowIndicatorConfig, StatusBadgeConfig, StatusLevel } from './indicators/types';
 
-// Import card components
+// Import all 6 card components
+import { MasterGaugesCard } from './cards/MasterGaugesCard';
 import { CrosslayCard } from './cards/CrosslayCard';
 import { IntakeCard } from './cards/IntakeCard';
 import { LargeDiameterCard } from './cards/LargeDiameterCard';
+import { EngineControlsCard } from './cards/EngineControlsCard';
+import { TankFoamCard } from './cards/TankFoamCard';
 
 /**
  * Manages all UI elements on the pump panel
@@ -33,11 +36,15 @@ export class PanelManager {
   private controls: Map<string, RotaryKnob | Lever> = new Map();
   private gauges: Map<string, PressureGauge> = new Map();
   
-  // Card components
+  // All 6 card components
+  private masterGaugesCard: MasterGaugesCard | null = null;
   private crosslayCard: CrosslayCard | null = null;
   private intakeCard: IntakeCard | null = null;
   private largeDiameterCard: LargeDiameterCard | null = null;
+  private engineControlsCard: EngineControlsCard | null = null;
+  private tankFoamCard: TankFoamCard | null = null;
   
+  // Legacy references (removed as they're now in cards)
   private throttleLever: Lever | null = null;
   private tankToPumpLever: Lever | null = null;
   private primerButton: Lever | null = null;
@@ -51,11 +58,11 @@ export class PanelManager {
   private waterTankText: PIXI.Text | null = null;
   private foamTankText: PIXI.Text | null = null;
   
-  // Master gauges
+  // Master gauges (now in MasterGaugesCard)
   private masterDischargeGauge: PressureGauge | null = null;
   private compoundIntakeGauge: PressureGauge | null = null;
   
-  // Water source indicator
+  // Water source indicator (now in MasterGaugesCard)
   private waterSourceIndicator: PIXI.Container | null = null;
   private waterSourceText: PIXI.Text | null = null;
 
@@ -77,49 +84,31 @@ export class PanelManager {
   public initialize(): void {
     const layoutConfig = this.layout.getLayout();
 
-    // Create master gauges first (most prominent)
-    this.createMasterDischargeGauge(layoutConfig.masterDischarge);
-    this.createCompoundIntakeGauge(layoutConfig.compoundIntake);
-    
-    // Create water source indicator
-    this.createWaterSourceIndicator(layoutConfig.compoundIntake);
-
-    // Create card components (NEW CARD-BASED DESIGN)
+    // Create all 6 card components (NEW 6-CARD GRID SYSTEM)
     this.createCardComponents(layoutConfig);
 
-    // Create intake pressure gauges (not in cards)
+    // Create intake pressure gauges (bottom row, not in cards)
     this.createIntakeGauges(layoutConfig.intakeGauges);
-
-    // Create throttle control (independent, not in card)
-    this.createThrottle(layoutConfig.throttle);
-
-    // Create primer button control
-    this.createPrimerButton(layoutConfig.primer);
-
-    // Create foam controls
-    this.createFoamControls(layoutConfig.foamPercent);
-
-    // Create tank level displays
-    this.createTankDisplays(layoutConfig.waterTank, layoutConfig.foamTank);
-
-    // Create DRV controls (independent, not in card)
-    this.createDRVControls(layoutConfig.drvToggle, layoutConfig.drvSetpoint);
-
-    // Create governor mode toggle
-    this.createGovernorToggle(layoutConfig.throttle);
-
-    // Create tank fill/recirculation control
-    this.createTankFillRecircControl(layoutConfig.tankFillRecirc);
 
     // Create visual indicators
     this.createIndicators(layoutConfig);
   }
 
   /**
-   * Create card components (NEW)
+   * Create all 6 card components (UPDATED)
    */
   private createCardComponents(layoutConfig: ReturnType<PanelLayout['getLayout']>): void {
-    // Create Crosslay/Trashline Unified Card
+    // Card 1 - Master Gauges Card
+    this.masterGaugesCard = new MasterGaugesCard({
+      x: layoutConfig.cards.masterGauges.x,
+      y: layoutConfig.cards.masterGauges.y,
+      width: layoutConfig.cards.masterGauges.width,
+      height: layoutConfig.cards.masterGauges.height,
+    });
+    this.masterGaugesCard.create();
+    this.app.stage.addChild(this.masterGaugesCard.getContainer());
+
+    // Card 2 - Crosslay/Trashline Card
     this.crosslayCard = new CrosslayCard({
       x: layoutConfig.cards.crosslay.x,
       y: layoutConfig.cards.crosslay.y,
@@ -130,7 +119,7 @@ export class PanelManager {
     this.crosslayCard.create();
     this.app.stage.addChild(this.crosslayCard.getContainer());
 
-    // Create Intake Controls Card
+    // Card 3 - Intake Controls Card
     this.intakeCard = new IntakeCard({
       x: layoutConfig.cards.intake.x,
       y: layoutConfig.cards.intake.y,
@@ -141,7 +130,7 @@ export class PanelManager {
     this.intakeCard.create();
     this.app.stage.addChild(this.intakeCard.getContainer());
 
-    // Create Large Diameter Discharge Card
+    // Card 4 - Large Diameter Discharge Card
     this.largeDiameterCard = new LargeDiameterCard({
       x: layoutConfig.cards.largeDiameter.x,
       y: layoutConfig.cards.largeDiameter.y,
@@ -151,6 +140,28 @@ export class PanelManager {
     });
     this.largeDiameterCard.create();
     this.app.stage.addChild(this.largeDiameterCard.getContainer());
+
+    // Card 5 - Engine Controls Card
+    this.engineControlsCard = new EngineControlsCard({
+      x: layoutConfig.cards.engineControls.x,
+      y: layoutConfig.cards.engineControls.y,
+      width: layoutConfig.cards.engineControls.width,
+      height: layoutConfig.cards.engineControls.height,
+      onChange: this.onChange,
+    });
+    this.engineControlsCard.create();
+    this.app.stage.addChild(this.engineControlsCard.getContainer());
+
+    // Card 6 - Tank & Foam Card
+    this.tankFoamCard = new TankFoamCard({
+      x: layoutConfig.cards.tankFoam.x,
+      y: layoutConfig.cards.tankFoam.y,
+      width: layoutConfig.cards.tankFoam.width,
+      height: layoutConfig.cards.tankFoam.height,
+      onChange: this.onChange,
+    });
+    this.tankFoamCard.create();
+    this.app.stage.addChild(this.tankFoamCard.getContainer());
   }
 
   /**
@@ -232,110 +243,6 @@ export class PanelManager {
   }
 
   /**
-   * Create master discharge pressure gauge
-   */
-  private createMasterDischargeGauge(position: { x: number; y: number }): void {
-    const config: GaugeConfig = {
-      id: 'master_discharge',
-      x: position.x,
-      y: position.y,
-      label: 'DISCHARGE PRESSURE',
-      min: 0,
-      max: 400,
-      units: 'PSI',
-      value: 0,
-      radius: 150, // Larger than regular gauges
-      isMaster: true,
-      dangerZone: {
-        startValue: 350,
-        endValue: 450,
-        warningThreshold: 350,
-      },
-    };
-
-    this.masterDischargeGauge = new PressureGauge(config);
-    this.masterDischargeGauge.create();
-    this.app.stage.addChild(this.masterDischargeGauge.getContainer());
-    this.gauges.set('master_discharge', this.masterDischargeGauge);
-  }
-
-  /**
-   * Create compound intake gauge (shows both PSI and vacuum)
-   */
-  private createCompoundIntakeGauge(position: { x: number; y: number }): void {
-    const config: GaugeConfig = {
-      id: 'compound_intake',
-      x: position.x,
-      y: position.y,
-      label: 'INTAKE PRESSURE/VACUUM',
-      min: -30, // -30 inHg vacuum
-      max: 100, // 100 PSI pressure
-      units: 'PSI',
-      value: 0,
-      radius: 120,
-      isMaster: true,
-      compound: {
-        centerValue: 0,
-        negativeUnits: 'inHg',
-        positiveUnits: 'PSI',
-      },
-    };
-
-    this.compoundIntakeGauge = new PressureGauge(config);
-    this.compoundIntakeGauge.create();
-    this.app.stage.addChild(this.compoundIntakeGauge.getContainer());
-    this.gauges.set('compound_intake', this.compoundIntakeGauge);
-  }
-
-  /**
-   * Create water source status indicator
-   */
-  private createWaterSourceIndicator(intakePosition: { x: number; y: number }): void {
-    this.waterSourceIndicator = new PIXI.Container();
-    this.waterSourceIndicator.x = intakePosition.x;
-    this.waterSourceIndicator.y = intakePosition.y + 180; // Below compound intake gauge
-
-    // Background box
-    const bg = new PIXI.Graphics();
-    bg.roundRect(-80, -20, 160, 40, 5);
-    bg.fill({ color: 0x2a2a2a, alpha: 0.8 });
-    bg.stroke({ width: 2, color: 0x00ff00 });
-    this.waterSourceIndicator.addChild(bg);
-
-    // Label text
-    const label = new PIXI.Text({
-      text: 'WATER SOURCE:',
-      style: {
-        fontSize: 12,
-        fill: 0xcccccc,
-        align: 'center',
-        fontWeight: 'bold',
-      },
-    });
-    label.anchor.set(0.5, 1);
-    label.x = 0;
-    label.y = -5;
-    this.waterSourceIndicator.addChild(label);
-
-    // Source value text
-    this.waterSourceText = new PIXI.Text({
-      text: 'TANK',
-      style: {
-        fontSize: 16,
-        fill: 0x00ff00,
-        align: 'center',
-        fontWeight: 'bold',
-      },
-    });
-    this.waterSourceText.anchor.set(0.5, 0);
-    this.waterSourceText.x = 0;
-    this.waterSourceText.y = 0;
-    this.waterSourceIndicator.addChild(this.waterSourceText);
-
-    this.app.stage.addChild(this.waterSourceIndicator);
-  }
-
-  /**
    * Create intake pressure gauges
    */
   private createIntakeGauges(positions: Record<IntakeId, { x: number; y: number }>): void {
@@ -368,269 +275,29 @@ export class PanelManager {
   }
 
   /**
-   * Create throttle control (large lever)
-   */
-  private createThrottle(position: { x: number; y: number }): void {
-    this.throttleLever = new Lever(
-      {
-        id: 'throttle',
-        type: 'lever',
-        x: position.x,
-        y: position.y,
-        label: 'Throttle',
-        min: 0,
-        max: 100,
-        step: 1,
-        value: 0,
-      },
-      this.onChange,
-      true, // vertical
-      120   // larger track height for throttle (reduced from 150)
-    );
-
-    this.throttleLever.create();
-    this.app.stage.addChild(this.throttleLever.getContainer());
-    this.controls.set('throttle', this.throttleLever);
-  }
-
-  /**
-   * Create tank-to-pump valve control (lever)
-   */
-  private createTankToPumpValve(position: { x: number; y: number }): void {
-    this.tankToPumpLever = new Lever(
-      {
-        id: 'tank_to_pump',
-        type: ControlType.Lever,
-        x: position.x,
-        y: position.y,
-        label: 'Tank-to-Pump',
-        min: 0,
-        max: 1,
-        step: 1,
-        value: 0,
-      },
-      this.onChange,
-      true, // vertical
-      80    // track height
-    );
-
-    this.tankToPumpLever.create();
-    this.app.stage.addChild(this.tankToPumpLever.getContainer());
-    this.controls.set('tank_to_pump', this.tankToPumpLever);
-  }
-
-  /**
-   * Create primer button control (momentary push button)
-   */
-  private createPrimerButton(position: { x: number; y: number }): void {
-    this.primerButton = new Lever(
-      {
-        id: 'primer',
-        type: 'lever',
-        x: position.x,
-        y: position.y,
-        label: 'PRIMER',
-        min: 0,
-        max: 1,
-        step: 1,
-        value: 0,
-      },
-      this.onChange,
-      false, // horizontal
-      45     // track width for button (reduced from 60)
-    );
-
-    this.primerButton.create();
-    this.app.stage.addChild(this.primerButton.getContainer());
-    this.controls.set('primer', this.primerButton);
-  }
-
-  /**
-   * Create foam controls (percentage knob)
-   */
-  private createFoamControls(position: { x: number; y: number }): void {
-    this.foamPercentKnob = new RotaryKnob(
-      {
-        id: 'foam_percent',
-        type: ControlType.Rotary,
-        x: position.x,
-        y: position.y,
-        label: 'Foam %',
-        min: 0,
-        max: 6,
-        step: 0.1,
-        value: 0.5,
-      },
-      this.onChange
-    );
-
-    this.foamPercentKnob.create();
-    this.app.stage.addChild(this.foamPercentKnob.getContainer());
-    this.controls.set('foam_percent', this.foamPercentKnob);
-  }
-
-  /**
-   * Create DRV controls (toggle and setpoint knob)
-   */
-  private createDRVControls(
-    togglePos: { x: number; y: number },
-    setpointPos: { x: number; y: number }
-  ): void {
-    // DRV toggle control (ON/OFF)
-    this.drvToggleLever = new Lever(
-      {
-        id: 'drv_toggle',
-        type: 'lever',
-        x: togglePos.x,
-        y: togglePos.y,
-        label: 'RELIEF VALVE',
-        min: 0,
-        max: 1,
-        step: 1,
-        value: 1, // Default ON for safety
-      },
-      this.onChange,
-      true, // vertical
-      60    // track height (reduced from 80)
-    );
-
-    this.drvToggleLever.create();
-    this.app.stage.addChild(this.drvToggleLever.getContainer());
-    this.controls.set('drv_toggle', this.drvToggleLever);
-
-    // DRV setpoint knob (75-300 PSI)
-    this.drvSetpointKnob = new RotaryKnob(
-      {
-        id: 'drv_setpoint',
-        type: 'rotary',
-        x: setpointPos.x,
-        y: setpointPos.y,
-        label: 'RELIEF PSI',
-        min: 75,
-        max: 300,
-        step: 5,
-        value: 200, // Default 200 PSI
-      },
-      this.onChange
-    );
-
-    this.drvSetpointKnob.create();
-    this.app.stage.addChild(this.drvSetpointKnob.getContainer());
-    this.controls.set('drv_setpoint', this.drvSetpointKnob);
-  }
-
-  /**
-   * Create governor mode toggle control (RPM / PRESSURE)
-   */
-  private createGovernorToggle(throttlePosition: { x: number; y: number }): void {
-    // Position governor toggle near throttle control
-    this.governorToggleLever = new Lever(
-      {
-        id: 'governor_toggle',
-        type: 'lever',
-        x: throttlePosition.x + 80, // Position to the right of throttle (reduced offset)
-        y: throttlePosition.y,
-        label: 'GOV: RPM/PSI',
-        min: 0,
-        max: 1,
-        step: 1,
-        value: 1, // Default to PRESSURE mode (1)
-      },
-      this.onChange,
-      true, // vertical
-      60    // track height (reduced from 80)
-    );
-
-    this.governorToggleLever.create();
-    this.app.stage.addChild(this.governorToggleLever.getContainer());
-    this.controls.set('governor_toggle', this.governorToggleLever);
-  }
-
-  /**
-   * Create tank fill/recirculation control (rotary knob)
-   */
-  private createTankFillRecircControl(tankPosition: { x: number; y: number }): void {
-    // Position near tank-to-pump valve
-    this.tankFillRecircKnob = new RotaryKnob(
-      {
-        id: 'tank_fill_recirc',
-        type: 'rotary',
-        x: tankPosition.x,
-        y: tankPosition.y,
-        label: 'TANK FILL/RECIRC',
-        min: 0,
-        max: 100,
-        step: 5,
-        value: 0,
-      },
-      this.onChange
-    );
-
-    this.tankFillRecircKnob.create();
-    this.app.stage.addChild(this.tankFillRecircKnob.getContainer());
-    this.controls.set('tank_fill_recirc', this.tankFillRecircKnob);
-  }
-
-  /**
-   * Create tank level displays
-   */
-  private createTankDisplays(
-    waterPos: { x: number; y: number },
-    foamPos: { x: number; y: number }
-  ): void {
-    // Water tank display
-    this.waterTankText = new PIXI.Text({
-      text: 'Water: 500 gal',
-      style: {
-        fontSize: 16,
-        fill: 0x00aaff,
-        align: 'right',
-        fontWeight: 'bold',
-      },
-    });
-    this.waterTankText.anchor.set(1, 0.5);
-    this.waterTankText.x = waterPos.x;
-    this.waterTankText.y = waterPos.y;
-    this.app.stage.addChild(this.waterTankText);
-
-    // Foam tank display
-    this.foamTankText = new PIXI.Text({
-      text: 'Foam: 20 gal',
-      style: {
-        fontSize: 16,
-        fill: 0xff6600,
-        align: 'right',
-        fontWeight: 'bold',
-      },
-    });
-    this.foamTankText.anchor.set(1, 0.5);
-    this.foamTankText.x = foamPos.x;
-    this.foamTankText.y = foamPos.y;
-    this.app.stage.addChild(this.foamTankText);
-  }
-
-  /**
    * Update all gauges based on simulation state
    */
   public updateGauges(state: PumpState, diagnostics?: SimulationDiagnostics): void {
-    // Update master discharge gauge
-    if (this.masterDischargeGauge) {
-      this.masterDischargeGauge.setValue(state.dischargePsi);
-    }
-
-    // Update compound intake gauge (handles both positive PSI and negative vacuum)
-    if (this.compoundIntakeGauge) {
-      // If in draft mode with vacuum, use negative value
+    // Update Master Gauges Card
+    if (this.masterGaugesCard) {
+      this.masterGaugesCard.setMasterDischargePressure(state.dischargePsi);
+      
+      // Handle compound intake gauge (vacuum vs pressure)
       if (state.waterSource === 'draft' && state.intakeVacuumInHg < 0) {
-        this.compoundIntakeGauge.setValue(state.intakeVacuumInHg);
+        this.masterGaugesCard.setCompoundIntakePressure(state.intakeVacuumInHg);
       } else {
-        // Otherwise use positive pressure
-        this.compoundIntakeGauge.setValue(state.intakePressurePsi);
+        this.masterGaugesCard.setCompoundIntakePressure(state.intakePressurePsi);
       }
+      
+      this.masterGaugesCard.setRPM(state.engineRpm);
+      this.masterGaugesCard.setWaterSource(state.waterSource);
     }
 
-    // Update water source indicator
-    this.updateWaterSourceDisplay(state);
+    // Update Tank & Foam Card
+    if (this.tankFoamCard) {
+      this.tankFoamCard.setWaterTankLevel(state.tankGallons);
+      this.tankFoamCard.setFoamTankLevel(state.foam.tankGallons);
+    }
 
     // Update intake pressure gauges
     const intakeIds: IntakeId[] = ['ldh_driver', 'ldh_officer', 'rear_ldh'];
@@ -641,21 +308,17 @@ export class PanelManager {
       }
     }
 
-    // Update tank displays
-    if (this.waterTankText) {
-      this.waterTankText.text = `Water: ${Math.round(state.tankGallons)} gal`;
-    }
-    if (this.foamTankText) {
-      this.foamTankText.text = `Foam: ${Math.round(state.foam.tankGallons * 10) / 10} gal`;
-    }
-
     // Update visual indicators
     this.updateIndicators(state, diagnostics);
 
-    // Could add more gauge updates here (flow rates, etc.) if diagnostics is provided
-    if (diagnostics) {
-      // Example: Update discharge flow indicators based on line hydraulics
-      // This would require additional gauge displays
+    // Update flow indicators based on diagnostics
+    if (diagnostics?.lineHydraulics) {
+      for (const [lineId, flowIndicator] of this.flowIndicators.entries()) {
+        const lineData = diagnostics.lineHydraulics.get(lineId);
+        if (lineData) {
+          flowIndicator.setFlow(lineData.flow || 0);
+        }
+      }
     }
   }
 
@@ -769,9 +432,9 @@ export class PanelManager {
     // Update flow indicators based on discharge pressures
     if (diagnostics?.lineHydraulics) {
       for (const [lineId, flowIndicator] of this.flowIndicators.entries()) {
-        const lineData = diagnostics.lineHydraulics[lineId];
+        const lineData = diagnostics.lineHydraulics.get(lineId);
         if (lineData) {
-          flowIndicator.setFlow(lineData.flowGpm || 0);
+          flowIndicator.setFlow(lineData.flow || 0);
         }
       }
     }
@@ -787,77 +450,62 @@ export class PanelManager {
   }
 
   /**
-   * Update layout for window resize - repositions all controls
+   * Update layout for window resize - repositions all cards and controls
    */
   public resize(width: number, height: number): void {
     this.layout.updateDimensions(width, height);
     const layoutConfig = this.layout.getLayout();
     
-    // Reposition all controls
-    this.controls.forEach((control, id) => {
-      if (id === 'throttle' && this.throttleLever) {
-        this.throttleLever.setPosition(layoutConfig.throttle.x, layoutConfig.throttle.y);
-      } else if (id === 'tank_to_pump' && this.tankToPumpLever) {
-        this.tankToPumpLever.setPosition(layoutConfig.tankToPump.x, layoutConfig.tankToPump.y);
-      } else if (id === 'primer' && this.primerButton) {
-        this.primerButton.setPosition(layoutConfig.primer.x, layoutConfig.primer.y);
-      } else if (id === 'foam_percent' && this.foamPercentKnob) {
-        this.foamPercentKnob.setPosition(layoutConfig.foamPercent.x, layoutConfig.foamPercent.y);
-      } else if (id === 'drv_toggle' && this.drvToggleLever) {
-        this.drvToggleLever.setPosition(layoutConfig.drvToggle.x, layoutConfig.drvToggle.y);
-      } else if (id === 'drv_setpoint' && this.drvSetpointKnob) {
-        this.drvSetpointKnob.setPosition(layoutConfig.drvSetpoint.x, layoutConfig.drvSetpoint.y);
-      } else if (id === 'governor_toggle' && this.governorToggleLever) {
-        const throttleScaled = layoutConfig.throttle;
-        this.governorToggleLever.setPosition(throttleScaled.x + 100, throttleScaled.y);
-      } else if (id === 'tank_fill_recirc' && this.tankFillRecircKnob) {
-        this.tankFillRecircKnob.setPosition(layoutConfig.tankFillRecirc.x, layoutConfig.tankFillRecirc.y);
-      } else if (id.startsWith('discharge_')) {
-        const dischargeId = id.replace('discharge_', '') as DischargeId;
-        const pos = layoutConfig.dischargeValves[dischargeId];
-        if (pos) {
-          control.setPosition(pos.x, pos.y);
-        }
-      }
-    });
-    
-    // Reposition all gauges
-    if (this.masterDischargeGauge) {
-      this.masterDischargeGauge.setPosition(layoutConfig.masterDischarge.x, layoutConfig.masterDischarge.y);
-    }
-    if (this.compoundIntakeGauge) {
-      this.compoundIntakeGauge.setPosition(layoutConfig.compoundIntake.x, layoutConfig.compoundIntake.y);
+    // Reposition all 6 cards
+    if (this.masterGaugesCard) {
+      this.masterGaugesCard.getContainer().x = layoutConfig.cards.masterGauges.x;
+      this.masterGaugesCard.getContainer().y = layoutConfig.cards.masterGauges.y;
     }
     
-    // Reposition water source indicator
-    if (this.waterSourceIndicator) {
-      this.waterSourceIndicator.x = layoutConfig.compoundIntake.x;
-      this.waterSourceIndicator.y = layoutConfig.compoundIntake.y + 180;
+    if (this.crosslayCard) {
+      this.crosslayCard.getContainer().x = layoutConfig.cards.crosslay.x;
+      this.crosslayCard.getContainer().y = layoutConfig.cards.crosslay.y;
     }
     
-    // Reposition tank displays
-    if (this.waterTankText) {
-      this.waterTankText.x = layoutConfig.waterTank.x;
-      this.waterTankText.y = layoutConfig.waterTank.y;
-    }
-    if (this.foamTankText) {
-      this.foamTankText.x = layoutConfig.foamTank.x;
-      this.foamTankText.y = layoutConfig.foamTank.y;
+    if (this.intakeCard) {
+      this.intakeCard.getContainer().x = layoutConfig.cards.intake.x;
+      this.intakeCard.getContainer().y = layoutConfig.cards.intake.y;
     }
     
-    // Reposition all indicators
+    if (this.largeDiameterCard) {
+      this.largeDiameterCard.getContainer().x = layoutConfig.cards.largeDiameter.x;
+      this.largeDiameterCard.getContainer().y = layoutConfig.cards.largeDiameter.y;
+    }
+    
+    if (this.engineControlsCard) {
+      this.engineControlsCard.getContainer().x = layoutConfig.cards.engineControls.x;
+      this.engineControlsCard.getContainer().y = layoutConfig.cards.engineControls.y;
+    }
+    
+    if (this.tankFoamCard) {
+      this.tankFoamCard.getContainer().x = layoutConfig.cards.tankFoam.x;
+      this.tankFoamCard.getContainer().y = layoutConfig.cards.tankFoam.y;
+    }
+    
+    // Reposition indicators by accessing their containers
     if (this.pumpEngagedLED) {
-      this.pumpEngagedLED.setPosition(layoutConfig.indicators.pumpEngaged.x, layoutConfig.indicators.pumpEngaged.y);
+      const container = this.pumpEngagedLED.getContainer();
+      container.x = layoutConfig.indicators.pumpEngaged.x;
+      container.y = layoutConfig.indicators.pumpEngaged.y;
     }
     if (this.governorModeIndicator) {
-      this.governorModeIndicator.setPosition(layoutConfig.indicators.governorMode.x, layoutConfig.indicators.governorMode.y);
+      const container = this.governorModeIndicator.getContainer();
+      container.x = layoutConfig.indicators.governorMode.x;
+      container.y = layoutConfig.indicators.governorMode.y;
     }
     
     // Reposition flow indicators
     this.flowIndicators.forEach((indicator, lineId) => {
       const pos = layoutConfig.flowIndicators[lineId];
       if (pos) {
-        indicator.setPosition(pos.x, pos.y);
+        const container = indicator.getContainer();
+        container.x = pos.x;
+        container.y = pos.y;
       }
     });
   }
@@ -890,7 +538,11 @@ export class PanelManager {
    * Clean up all controls and gauges
    */
   public destroy(): void {
-    // Destroy card components
+    // Destroy all 6 card components
+    if (this.masterGaugesCard) {
+      this.masterGaugesCard.destroy(this.app);
+      this.masterGaugesCard = null;
+    }
     if (this.crosslayCard) {
       this.crosslayCard.destroy();
       this.crosslayCard = null;
@@ -903,6 +555,14 @@ export class PanelManager {
       this.largeDiameterCard.destroy();
       this.largeDiameterCard = null;
     }
+    if (this.engineControlsCard) {
+      this.engineControlsCard.destroy();
+      this.engineControlsCard = null;
+    }
+    if (this.tankFoamCard) {
+      this.tankFoamCard.destroy();
+      this.tankFoamCard = null;
+    }
 
     // Destroy all controls
     this.controls.forEach((control) => control.destroy());
@@ -912,22 +572,6 @@ export class PanelManager {
     this.gauges.forEach((gauge) => gauge.destroy(this.app));
     this.gauges.clear();
 
-    // Destroy master gauges
-    if (this.masterDischargeGauge) {
-      this.masterDischargeGauge.destroy(this.app);
-      this.masterDischargeGauge = null;
-    }
-    if (this.compoundIntakeGauge) {
-      this.compoundIntakeGauge.destroy(this.app);
-      this.compoundIntakeGauge = null;
-    }
-
-    // Destroy water source indicator
-    if (this.waterSourceIndicator) {
-      this.waterSourceIndicator.destroy({ children: true });
-      this.waterSourceIndicator = null;
-    }
-
     // Destroy visual indicators
     this.indicators.forEach((indicator) => indicator.destroy(this.app));
     this.indicators.clear();
@@ -936,7 +580,7 @@ export class PanelManager {
     this.flowIndicators.forEach((indicator) => indicator.destroy(this.app));
     this.flowIndicators.clear();
 
-    // Clear references
+    // Clear all legacy references
     this.throttleLever = null;
     this.foamPercentKnob = null;
     this.tankToPumpLever = null;
@@ -948,6 +592,9 @@ export class PanelManager {
     this.waterTankText = null;
     this.foamTankText = null;
     this.waterSourceText = null;
+    this.masterDischargeGauge = null;
+    this.compoundIntakeGauge = null;
+    this.waterSourceIndicator = null;
     this.pumpEngagedLED = null;
     this.governorModeIndicator = null;
   }

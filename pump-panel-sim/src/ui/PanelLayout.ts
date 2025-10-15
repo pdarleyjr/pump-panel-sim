@@ -1,6 +1,6 @@
 /**
  * Layout manager for pump panel controls and gauges
- * Card-based redesign with 25% size reduction for 900x600px viewport
+ * 8×6 Grid-based redesign with responsive scaling for 900×600, 1024×768, and 1920×1080
  */
 
 import type { DischargeId, IntakeId } from '../sim/model';
@@ -27,9 +27,12 @@ export interface CardDimensions extends Position {
 export interface PanelLayoutConfig {
   /** Card positions and sizes */
   cards: {
+    masterGauges: CardDimensions;
     crosslay: CardDimensions;
     intake: CardDimensions;
     largeDiameter: CardDimensions;
+    engineControls: CardDimensions;
+    tankFoam: CardDimensions;
   };
   
   /** Positions for intake pressure gauges */
@@ -97,25 +100,53 @@ export interface PanelLayoutConfig {
 }
 
 /**
+ * Grid configuration for 8×6 layout system
+ */
+interface GridConfig {
+  columns: number;
+  rows: number;
+  cellWidth: number;
+  cellHeight: number;
+  gap: number;
+  margin: number;
+  cardMargin: number;
+}
+
+/**
  * Manages layout of all panel controls and gauges
- * Card-based design for 900x600px canvas with zero overlaps
+ * 8×6 Grid-based design with responsive support for 900×600, 1024×768, and 1920×1080
  */
 export class PanelLayout {
   private width: number;
   private height: number;
   
-  // TARGET CANVAS SIZE - Design optimized for this
-  private readonly CANVAS_WIDTH = 900;
-  private readonly CANVAS_HEIGHT = 600;
+  // TARGET RESOLUTIONS
+  private readonly TARGET_RESOLUTIONS = {
+    MOBILE: { width: 900, height: 600 },
+    TABLET: { width: 1024, height: 768 },
+    DESKTOP: { width: 1920, height: 1080 },
+  };
   
-  // REDUCED CONTROL SIZES (25% smaller than original)
-  private readonly KNOB_DIAMETER = 60;  // Was 80px
-  private readonly LEVER_WIDTH = 22.5;  // Was 30px
-  private readonly LEVER_HEIGHT = 60;   // Was 80px
-  private readonly MASTER_GAUGE_DIAMETER = 225;  // Was 300px
-  private readonly COMPOUND_GAUGE_DIAMETER = 180; // Was 240px
-  private readonly LABEL_WIDTH = 75;    // Was 100px
-  private readonly MIN_SPACING = 30;    // Minimum gap between controls
+  // GRID SYSTEM CONSTANTS
+  private readonly GRID_COLUMNS = 8;
+  private readonly GRID_ROWS = 6;
+  
+  // BASE DIMENSIONS (900×600)
+  private readonly BASE_MARGIN = 20;
+  private readonly BASE_GAP = 30;
+  private readonly BASE_CARD_MARGIN = 40;
+  
+  // CONTROL SIZES (already properly sized)
+  private readonly KNOB_RADIUS = 30;  // 60px diameter
+  private readonly LEVER_WIDTH = 22.5;
+  private readonly LEVER_HEIGHT = 60;
+  private readonly MASTER_GAUGE_RADIUS = 112.5;  // 225px diameter
+  private readonly COMPOUND_GAUGE_RADIUS = 90; // 180px diameter
+  private readonly SMALL_GAUGE_RADIUS = 30; // 60px diameter
+  private readonly RPM_GAUGE_RADIUS = 90; // 180px diameter
+  private readonly LABEL_HEIGHT = 20;
+  private readonly VALUE_TEXT_HEIGHT = 20;
+  private readonly MIN_SPACING = 30;
 
   constructor(width: number, height: number) {
     this.width = width;
@@ -131,132 +162,241 @@ export class PanelLayout {
   }
 
   /**
+   * Calculate scale factor based on current resolution
+   */
+  private getScaleFactor(): number {
+    // Scale controls based on viewport size
+    if (this.width >= this.TARGET_RESOLUTIONS.DESKTOP.width) {
+      return 1.5; // 150% for 1920×1080
+    } else if (this.width >= this.TARGET_RESOLUTIONS.TABLET.width) {
+      return 1.2; // 120% for 1024×768
+    }
+    return 1.0; // 100% for 900×600
+  }
+
+  /**
+   * Get grid configuration for current scale
+   */
+  private getGridConfig(): GridConfig {
+    const scale = this.getScaleFactor();
+    
+    // Calculate cell dimensions based on canvas size and grid
+    // At 900×600: cellWidth = 107.5px, cellHeight = 93.3px
+    const cellWidth = (this.width - this.BASE_MARGIN * 2 * scale) / this.GRID_COLUMNS;
+    const cellHeight = (this.height - this.BASE_MARGIN * 2 * scale) / this.GRID_ROWS;
+    
+    return {
+      columns: this.GRID_COLUMNS,
+      rows: this.GRID_ROWS,
+      cellWidth,
+      cellHeight,
+      gap: this.BASE_GAP * scale,
+      margin: this.BASE_MARGIN * scale,
+      cardMargin: this.BASE_CARD_MARGIN * scale,
+    };
+  }
+
+  /**
+   * Get position in grid system
+   */
+  private getGridPosition(col: number, row: number, config: GridConfig): Position {
+    return {
+      x: config.margin + col * config.cellWidth,
+      y: config.margin + row * config.cellHeight,
+    };
+  }
+
+  /**
    * Get complete layout configuration
    */
   public getLayout(): PanelLayoutConfig {
+    const scale = this.getScaleFactor();
+    
     const layout: PanelLayoutConfig = {
-      cards: this.getCardPositions(),
-      intakeGauges: this.getIntakeGaugePositions(),
-      dischargeValves: this.getDischargeValvePositions(),
-      throttle: this.getThrottlePosition(),
-      foamEnable: this.getFoamEnablePosition(),
-      foamPercent: this.getFoamPercentPosition(),
-      waterTank: this.getWaterTankPosition(),
-      foamTank: this.getFoamTankPosition(),
-      tankToPump: this.getTankToPumpPosition(),
-      tankFillRecirc: this.getTankFillRecircPosition(),
-      primer: this.getPrimerPosition(),
-      drvToggle: this.getDRVTogglePosition(),
-      drvSetpoint: this.getDRVSetpointPosition(),
-      masterDischarge: this.getMasterDischargePosition(),
-      compoundIntake: this.getCompoundIntakePosition(),
-      indicators: this.getIndicatorPositions(),
-      flowIndicators: this.getFlowIndicatorPositions(),
+      cards: this.getCardPositions(scale),
+      intakeGauges: this.getIntakeGaugePositions(scale),
+      dischargeValves: this.getDischargeValvePositions(scale),
+      throttle: this.getThrottlePosition(scale),
+      foamEnable: this.getFoamEnablePosition(scale),
+      foamPercent: this.getFoamPercentPosition(scale),
+      waterTank: this.getWaterTankPosition(scale),
+      foamTank: this.getFoamTankPosition(scale),
+      tankToPump: this.getTankToPumpPosition(scale),
+      tankFillRecirc: this.getTankFillRecircPosition(scale),
+      primer: this.getPrimerPosition(scale),
+      drvToggle: this.getDRVTogglePosition(scale),
+      drvSetpoint: this.getDRVSetpointPosition(scale),
+      masterDischarge: this.getMasterDischargePosition(scale),
+      compoundIntake: this.getCompoundIntakePosition(scale),
+      indicators: this.getIndicatorPositions(scale),
+      flowIndicators: this.getFlowIndicatorPositions(scale),
     };
 
     // DIAGNOSTIC LOGGING - Validate layout spacing
-    this.logLayoutDiagnostics(layout);
+    this.logLayoutDiagnostics(layout, scale);
 
     return layout;
   }
 
   /**
-   * Get card positions and dimensions
-   * THREE MAIN ACTION CARDS as per design spec
+   * Get card positions and dimensions with 8×6 grid-based layout
+   * SIX CARDS positioned according to design specification
    */
-  private getCardPositions(): PanelLayoutConfig['cards'] {
+  private getCardPositions(scale: number = 1.0): PanelLayoutConfig['cards'] {
     return {
-      // Crosslay/Trashline Unified Card (left, middle row)
+      // Card 1 - Master Gauges (top-left)
+      masterGauges: {
+        x: 20 * scale,
+        y: 20 * scale,
+        width: 280 * scale,
+        height: 260 * scale,
+      },
+      
+      // Card 2 - Crosslay (middle-left)
       crosslay: {
-        x: 40,
-        y: 280,
-        width: 250,
-        height: 150,
+        x: 20 * scale,
+        y: 280 * scale,
+        width: 240 * scale,
+        height: 160 * scale,
       },
       
-      // Intake Controls Card (center, middle row)
+      // Card 3 - Intake (middle-center-left)
       intake: {
-        x: 320,
-        y: 280,
-        width: 200,
-        height: 150,
+        x: 290 * scale,
+        y: 280 * scale,
+        width: 200 * scale,
+        height: 180 * scale,
       },
       
-      // Large Diameter Discharge Card (bottom row, SHORTENED to x=550 to avoid right side)
+      // Card 4 - Large Diameter (bottom, spans multiple columns)
       largeDiameter: {
-        x: 40,
-        y: 460,
-        width: 510,  // Was 600, now 510 to end at x=550
-        height: 120,
+        x: 20 * scale,
+        y: 470 * scale,
+        width: 520 * scale,
+        height: 160 * scale,
+      },
+      
+      // Card 5 - Engine Controls (middle-center-right)
+      engineControls: {
+        x: 520 * scale,
+        y: 280 * scale,
+        width: 180 * scale,
+        height: 260 * scale,
+      },
+      
+      // Card 6 - Tank & Foam (middle-right)
+      tankFoam: {
+        x: 720 * scale,
+        y: 280 * scale,
+        width: 180 * scale,
+        height: 180 * scale,
       },
     };
   }
 
   /**
-   * Get positions for top row gauges
+   * Get positions for master gauges (now in MasterGaugesCard)
    */
-  private getMasterDischargePosition(): Position {
-    return { x: 600, y: 120 }; // Moved up slightly (was 140)
+  private getMasterDischargePosition(scale: number = 1.0): Position {
+    // These will be inside the MasterGaugesCard, but keep for compatibility
+    return { 
+      x: 20 * scale, 
+      y: 20 * scale 
+    };
   }
 
-  private getCompoundIntakePosition(): Position {
-    return { x: 280, y: 120 }; // Moved left and up (was 300, 140)
+  private getCompoundIntakePosition(scale: number = 1.0): Position {
+    // These will be inside the MasterGaugesCard, but keep for compatibility
+    return { 
+      x: 20 * scale, 
+      y: 20 * scale 
+    };
   }
 
   /**
-   * Get positions for independent controls (Governor, DRV, Throttle)
-   * Positioned on right side - ZERO OVERLAPS GUARANTEED
+   * Get positions for engine controls (now in EngineControlsCard)
    */
-  private getDRVSetpointPosition(): Position {
-    return { x: 760, y: 300 }; // Far right, below gauge clearance
+  private getDRVSetpointPosition(scale: number = 1.0): Position {
+    // Will be inside EngineControlsCard
+    return { 
+      x: 520 * scale, 
+      y: 280 * scale 
+    };
   }
 
-  private getDRVTogglePosition(): Position {
-    return { x: 760, y: 390 }; // Directly below setpoint with 90px gap
+  private getDRVTogglePosition(scale: number = 1.0): Position {
+    // Will be inside EngineControlsCard
+    return { 
+      x: 520 * scale, 
+      y: 280 * scale 
+    };
   }
 
-  private getThrottlePosition(): Position {
-    return { x: 760, y: 520 }; // Moved down to y=520 for clearance (was 490)
+  private getThrottlePosition(scale: number = 1.0): Position {
+    // Will be inside EngineControlsCard
+    return { 
+      x: 520 * scale, 
+      y: 280 * scale 
+    };
   }
 
   /**
-   * Get positions for foam controls (right side, top area)
+   * Get positions for tank & foam controls (now in TankFoamCard)
    */
-  private getFoamEnablePosition(): Position {
-    return { x: 820, y: 200 }; // Far top right
+  private getFoamEnablePosition(scale: number = 1.0): Position {
+    // Will be inside TankFoamCard
+    return { 
+      x: 720 * scale, 
+      y: 280 * scale 
+    };
   }
 
-  private getFoamPercentPosition(): Position {
-    return { x: 820, y: 140 }; // Above foam enable
+  private getFoamPercentPosition(scale: number = 1.0): Position {
+    // Will be inside TankFoamCard
+    return { 
+      x: 720 * scale, 
+      y: 280 * scale 
+    };
   }
 
   /**
-   * Get positions for tank displays (far right edge)
+   * Get positions for tank displays (now in TankFoamCard)
    */
-  private getWaterTankPosition(): Position {
-    return { x: 860, y: 540 }; // Far right bottom
+  private getWaterTankPosition(scale: number = 1.0): Position {
+    // Will be inside TankFoamCard
+    return { 
+      x: 720 * scale, 
+      y: 280 * scale 
+    };
   }
 
-  private getFoamTankPosition(): Position {
-    return { x: 860, y: 570 }; // Far right bottom
+  private getFoamTankPosition(scale: number = 1.0): Position {
+    // Will be inside TankFoamCard
+    return { 
+      x: 720 * scale, 
+      y: 280 * scale 
+    };
   }
 
   /**
-   * Get positions for intake pressure gauges (bottom, below large diameter card)
+   * Get positions for intake pressure gauges
    */
-  public getIntakeGaugePositions(): Record<IntakeId, Position> {
+  public getIntakeGaugePositions(scale: number = 1.0): Record<IntakeId, Position> {
+    const baseY = this.height - 40 * scale;
+    const spacing = 150 * scale;
+    
     return {
-      ldh_driver: { x: 100, y: 590 },
-      ldh_officer: { x: 300, y: 590 },
-      rear_ldh: { x: 500, y: 590 },
+      ldh_driver: { x: 100 * scale, y: baseY },
+      ldh_officer: { x: 100 * scale + spacing, y: baseY },
+      rear_ldh: { x: 100 * scale + spacing * 2, y: baseY },
     };
   }
 
   /**
    * Get positions for discharge valves NOT in cards
    */
-  public getDischargeValvePositions(): Record<DischargeId, Position> {
-    // Most discharges are now in cards, keep legacy positions for non-card ones
+  public getDischargeValvePositions(_scale: number = 1.0): Record<DischargeId, Position> {
+    // Most discharges are now in cards, legacy positions set to 0,0
     return {
       xlay1: { x: 0, y: 0 }, // In crosslay card
       xlay2: { x: 0, y: 0 }, // In crosslay card
@@ -274,65 +414,67 @@ export class PanelLayout {
   /**
    * Legacy positions for controls now in cards
    */
-  public getTankToPumpPosition(): Position {
+  public getTankToPumpPosition(_scale: number = 1.0): Position {
     return { x: 0, y: 0 }; // Now in intake card
   }
 
-  public getTankFillRecircPosition(): Position {
-    return { x: 100, y: 240 };
+  public getTankFillRecircPosition(scale: number = 1.0): Position {
+    return { x: 100 * scale, y: 220 * scale };
   }
 
-  public getPrimerPosition(): Position {
-    return { x: 200, y: 240 };
+  public getPrimerPosition(scale: number = 1.0): Position {
+    return { x: 200 * scale, y: 220 * scale };
   }
 
   /**
    * Get positions for indicator elements
    */
-  public getIndicatorPositions(): PanelLayoutConfig['indicators'] {
+  public getIndicatorPositions(scale: number = 1.0): PanelLayoutConfig['indicators'] {
     return {
-      pumpEngaged: { x: 50, y: 60 },
-      governorMode: { x: 750, y: 250 },
-      tankLow: { x: 850, y: 200 },
-      cavitation: { x: 480, y: 200 },
-      overpressure: { x: 720, y: 200 },
-      temperature: { x: 850, y: 150 },
-      pressureStatus: { x: 600, y: 240 },
+      pumpEngaged: { x: 50 * scale, y: 50 * scale },
+      governorMode: { x: this.width - 150 * scale, y: 240 * scale },
+      tankLow: { x: this.width - 50 * scale, y: 180 * scale },
+      cavitation: { x: this.width / 2, y: 200 * scale },
+      overpressure: { x: this.width - 200 * scale, y: 200 * scale },
+      temperature: { x: this.width - 50 * scale, y: 120 * scale },
+      pressureStatus: { x: this.width - 250 * scale, y: 220 * scale },
     };
   }
 
   /**
-   * Get positions for flow indicators (near discharge valves)
+   * Get positions for flow indicators
    */
-  public getFlowIndicatorPositions(): Record<DischargeId, Position> {
-    // Position flow indicators below cards or near controls
+  public getFlowIndicatorPositions(scale: number = 1.0): Record<DischargeId, Position> {
+    const baseY = 400 * scale;
+    const spacing = 60 * scale;
+    
     return {
-      xlay1: { x: 140, y: 440 },
-      xlay2: { x: 200, y: 440 },
-      xlay3: { x: 260, y: 440 },
-      trash: { x: 320, y: 440 },
-      d2_5_a: { x: 100, y: 590 },
-      d2_5_b: { x: 250, y: 590 },
-      d2_5_c: { x: 400, y: 590 },
-      d2_5_d: { x: 550, y: 590 },
-      deck: { x: 650, y: 590 },
-      rear_ldh: { x: 700, y: 590 },
+      xlay1: { x: 80 * scale, y: baseY },
+      xlay2: { x: 140 * scale, y: baseY },
+      xlay3: { x: 200 * scale, y: baseY },
+      trash: { x: 260 * scale, y: baseY },
+      d2_5_a: { x: 80 * scale, y: this.height - 50 * scale },
+      d2_5_b: { x: 80 * scale + spacing, y: this.height - 50 * scale },
+      d2_5_c: { x: 80 * scale + spacing * 2, y: this.height - 50 * scale },
+      d2_5_d: { x: 80 * scale + spacing * 3, y: this.height - 50 * scale },
+      deck: { x: 80 * scale + spacing * 4, y: this.height - 50 * scale },
+      rear_ldh: { x: 80 * scale + spacing * 5, y: this.height - 50 * scale },
     };
   }
 
   /**
    * Log comprehensive layout diagnostics to detect overlaps
    */
-  private logLayoutDiagnostics(layout: PanelLayoutConfig): void {
-    console.group('🔍 PANEL LAYOUT DIAGNOSTICS - CARD-BASED REDESIGN');
+  private logLayoutDiagnostics(layout: PanelLayoutConfig, scale: number): void {
+    console.group('🔍 PANEL LAYOUT DIAGNOSTICS - RESPONSIVE REDESIGN');
     
-    console.log(`Canvas: ${this.width}x${this.height}px (Target: 900x600px)`);
-    console.log(`\n📏 REDUCED CONTROL SIZES (25% smaller):`);
-    console.log(`  Knob: ${this.KNOB_DIAMETER}px diameter`);
-    console.log(`  Lever: ${this.LEVER_WIDTH}x${this.LEVER_HEIGHT}px`);
-    console.log(`  Master Gauge: ${this.MASTER_GAUGE_DIAMETER}px diameter`);
-    console.log(`  Compound Gauge: ${this.COMPOUND_GAUGE_DIAMETER}px diameter`);
-    console.log(`  Min Spacing: ${this.MIN_SPACING}px`);
+    console.log(`Canvas: ${this.width}x${this.height}px (Scale: ${scale.toFixed(2)}x)`);
+    console.log(`\n📏 SCALED CONTROL SIZES:`);
+    console.log(`  Knob: ${(this.KNOB_RADIUS * 2 * scale).toFixed(0)}px diameter`);
+    console.log(`  Lever: ${(this.LEVER_WIDTH * scale).toFixed(0)}x${(this.LEVER_HEIGHT * scale).toFixed(0)}px`);
+    console.log(`  Master Gauge: ${(this.MASTER_GAUGE_RADIUS * 2 * scale).toFixed(0)}px diameter`);
+    console.log(`  Compound Gauge: ${(this.COMPOUND_GAUGE_RADIUS * 2 * scale).toFixed(0)}px diameter`);
+    console.log(`  Min Spacing: ${(this.MIN_SPACING * scale).toFixed(0)}px`);
     
     // Helper to calculate bounding box
     const bbox = (pos: Position, width: number, height: number) => ({
@@ -398,30 +540,34 @@ export class PanelLayout {
     });
     
     // Add master gauges
+    const masterGaugeSize = this.MASTER_GAUGE_RADIUS * 2 * scale + this.LABEL_HEIGHT * scale;
     controls.push({
       name: 'Master Discharge Gauge',
-      box: bbox(layout.masterDischarge, this.MASTER_GAUGE_DIAMETER, this.MASTER_GAUGE_DIAMETER + 30),
+      box: bbox(layout.masterDischarge, masterGaugeSize, masterGaugeSize + 30 * scale),
     });
     
+    const compoundGaugeSize = this.COMPOUND_GAUGE_RADIUS * 2 * scale + this.LABEL_HEIGHT * scale;
     controls.push({
       name: 'Compound Intake Gauge',
-      box: bbox(layout.compoundIntake, this.COMPOUND_GAUGE_DIAMETER, this.COMPOUND_GAUGE_DIAMETER + 30),
+      box: bbox(layout.compoundIntake, compoundGaugeSize, compoundGaugeSize + 30 * scale),
     });
     
     // Add independent controls
+    const knobSize = this.KNOB_RADIUS * 2 * scale + this.LABEL_HEIGHT * scale + this.VALUE_TEXT_HEIGHT * scale;
     controls.push({
       name: 'DRV Setpoint',
-      box: bbox(layout.drvSetpoint, this.KNOB_DIAMETER + this.LABEL_WIDTH, this.KNOB_DIAMETER + 30),
+      box: bbox(layout.drvSetpoint, knobSize, knobSize + 20 * scale),
     });
     
+    const leverSize = this.LEVER_HEIGHT * scale + this.LABEL_HEIGHT * scale + this.VALUE_TEXT_HEIGHT * scale;
     controls.push({
       name: 'DRV Toggle',
-      box: bbox(layout.drvToggle, this.LEVER_WIDTH + this.LABEL_WIDTH, this.LEVER_HEIGHT + 30),
+      box: bbox(layout.drvToggle, this.LEVER_WIDTH * scale + 40 * scale, leverSize),
     });
     
     controls.push({
       name: 'Throttle',
-      box: bbox(layout.throttle, this.LEVER_WIDTH + this.LABEL_WIDTH, this.LEVER_HEIGHT * 2 + 30),
+      box: bbox(layout.throttle, this.LEVER_WIDTH * scale + 40 * scale, leverSize * 1.5),
     });
     
     console.log('\n📍 CONTROL POSITIONS:');
@@ -441,9 +587,9 @@ export class PanelLayout {
     }
     
     if (overlapCount === 0) {
-      console.log('✅ No overlaps detected - REDESIGN SUCCESSFUL!');
+      console.log('✅ No overlaps detected - LAYOUT VALIDATED!');
     } else {
-      console.error(`⚠️  Found ${overlapCount} overlapping control pairs - NEEDS ADJUSTMENT`);
+      console.error(`⚠️  Found ${overlapCount} overlapping control pairs - REQUIRES ADJUSTMENT`);
     }
     
     console.groupEnd();
@@ -453,13 +599,28 @@ export class PanelLayout {
    * Get spacing for controls
    */
   public getControlSpacing(): number {
-    return this.MIN_SPACING;
+    return this.MIN_SPACING * this.getScaleFactor();
   }
 
   /**
-   * Get gauge radius based on type
+   * Get gauge radius based on type and scale
    */
-  public getGaugeRadius(): number {
-    return 60; // Default gauge radius (25% smaller than original 80px)
+  public getGaugeRadius(type: 'master' | 'compound' | 'small' = 'small'): number {
+    const scale = this.getScaleFactor();
+    switch (type) {
+      case 'master':
+        return this.MASTER_GAUGE_RADIUS * scale;
+      case 'compound':
+        return this.COMPOUND_GAUGE_RADIUS * scale;
+      default:
+        return this.SMALL_GAUGE_RADIUS * scale;
+    }
+  }
+  
+  /**
+   * Get knob radius with scale
+   */
+  public getKnobRadius(): number {
+    return this.KNOB_RADIUS * this.getScaleFactor();
   }
 }

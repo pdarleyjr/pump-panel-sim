@@ -1,6 +1,7 @@
 /**
  * Intake Controls Card Component
  * Groups intake valves, tank controls, and source selection
+ * Properly sized with 60px lever height
  */
 
 import * as PIXI from 'pixi.js';
@@ -67,7 +68,7 @@ export class IntakeCard {
         id: 'tank_to_pump',
         type: 'lever',
         x: this.config.width / 2,
-        y: 65,
+        y: 60,
         label: 'Tank-to-Pump',
         min: 0,
         max: 1,
@@ -76,7 +77,7 @@ export class IntakeCard {
       },
       this.config.onChange,
       true, // vertical
-      60    // track height (25% smaller than original 80px)
+      60    // track height (properly sized, was 80px)
     );
 
     this.tankToPumpLever.create();

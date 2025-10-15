@@ -50,7 +50,7 @@ export function createKnobGraphic(radius: number = 30, color: number = 0x4a5568)
  */
 export function createKnobTexture(
   app: PIXI.Application,
-  radius: number = 40,
+  radius: number = 30,
   color: number = 0x4a5568
 ): PIXI.Texture {
   const container = createKnobGraphic(radius, color);

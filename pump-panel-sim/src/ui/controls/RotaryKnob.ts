@@ -28,13 +28,15 @@ export class RotaryKnob {
   private valueText: PIXI.Text;
   private touchFeedback: PIXI.Graphics | null = null;
   private lastStepValue: number = 0;
+  private hasFocus: boolean = false;
+  private focusIndicator: PIXI.Graphics | null = null;
 
   constructor(config: ControlConfig, onChange: (event: ControlEvent) => void) {
     this.config = config;
     this.onChange = onChange;
     this.currentValue = config.value;
     this.container = new PIXI.Container();
-    this.knobGraphic = createKnobGraphic(40, 0x4a5568);
+    this.knobGraphic = createKnobGraphic(30, 0x4a5568);
     this.label = new PIXI.Text();
     this.valueText = new PIXI.Text();
   }
@@ -53,7 +55,7 @@ export class RotaryKnob {
     this.knobGraphic.cursor = 'pointer';
 
     // Add touch feedback for better visual response on tablets
-    this.touchFeedback = addTouchFeedback(this.knobGraphic, 40);
+    this.touchFeedback = addTouchFeedback(this.knobGraphic, 30);
 
     // Expand circular hit area for WCAG 2.1 touch target compliance (44x44px minimum)
     expandCircularHitArea(this.knobGraphic, 44);

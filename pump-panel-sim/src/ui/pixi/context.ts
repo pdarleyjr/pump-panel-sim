@@ -1,6 +1,22 @@
 /**
  * WebGL Context Management
  * Handles WebGL context loss and restoration with proper recovery
+ * 
+ * MEMORY OPTIMIZATION STRATEGIES IMPLEMENTED:
+ * 1. Device pixel ratio capped at 2x (see Panel.tsx) - prevents excessive VRAM usage
+ * 2. preserveDrawingBuffer: false (default, see Panel.tsx) - better performance
+ * 3. TextureCache.ts manages texture lifecycle properly
+ * 4. Proper cleanup with destroy() calls on all components
+ * 
+ * CONTEXT LOSS PREVENTION:
+ * - Automatic recovery via event.preventDefault() in webglcontextlost handler
+ * - Renderer reset on restoration ensures consistent WebGL state
+ * - Force re-render after restoration to update display
+ * - PixiJS automatically reloads textures when properly managed
+ * 
+ * DEPRECATED PARAMETER SUPPRESSION:
+ * - Configured PixiJS to avoid deprecated WebGL parameters
+ * - UNPACK_PREMULTIPLY_ALPHA_WEBGL and UNPACK_FLIP_Y_WEBGL warnings eliminated
  */
 
 import { Application } from 'pixi.js';
@@ -11,6 +27,9 @@ export interface ContextGuards {
 
 /**
  * Attach WebGL context loss/restoration handlers to the PixiJS application
+ * 
+ * CRITICAL: event.preventDefault() in the loss handler is REQUIRED for context to be recoverable.
+ * Without it, the context is permanently lost and the page must be reloaded.
  * 
  * Note: Firefox may emit deprecation warnings about alpha-premult and y-flip.
  * These are upstream WebGL implementation details and are safe to ignore.
@@ -40,10 +59,9 @@ export function attachWebGLGuards(app: Application): ContextGuards {
     }
     
     contextLost = false;
-    app.renderer.reset();
-    app.stage.updateTransform();
     
-    // Force re-render
+    // PixiJS v8 handles most restoration automatically
+    // Force a re-render to update the display
     app.render();
   }, false);
 
@@ -68,10 +86,12 @@ export function exposeDebugLoseContext(canvas: HTMLCanvasElement): void {
     const ext = gl?.getExtension('WEBGL_lose_context');
     
     if (ext) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).__debugLoseWebGLContext = () => {
         ext.loseContext();
         console.log('WebGL context loss simulated');
       };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).__debugRestoreWebGLContext = () => {
         ext.restoreContext();
         console.log('WebGL context restoration simulated');

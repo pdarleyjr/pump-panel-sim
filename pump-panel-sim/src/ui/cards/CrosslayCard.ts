@@ -1,6 +1,7 @@
 /**
  * Crosslay/Trashline Unified Card Component
  * Single component with 4-way selector and integrated controls
+ * Properly sized with 30px radius knobs and gauges
  */
 
 import * as PIXI from 'pixi.js';
@@ -187,13 +188,13 @@ export class CrosslayCard {
     const gaugeConfig: GaugeConfig = {
       id: 'crosslay_gauge',
       x: this.config.width / 2,
-      y: 110,
+      y: 105,
       label: '',
       min: 0,
       max: 200,
       units: 'PSI',
       value: 0,
-      radius: 30,
+      radius: 30, // 60px diameter gauge
     };
 
     this.gauge = new PressureGauge(gaugeConfig);
@@ -207,7 +208,7 @@ export class CrosslayCard {
         id: 'crosslay_valve',
         type: 'rotary',
         x: this.config.width / 2,
-        y: 110,
+        y: 105,
         label: 'VALVE',
         min: 0,
         max: 100,

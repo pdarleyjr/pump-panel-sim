@@ -1,6 +1,7 @@
 /**
  * Large Diameter Discharge Card Component
  * Grid of 2.5" discharge lines, deck gun, and rear discharge
+ * Properly sized with 30px radius knobs and adequate spacing
  */
 
 import * as PIXI from 'pixi.js';
@@ -66,14 +67,20 @@ export class LargeDiameterCard {
     ];
 
     const cols = 3;
-    const knobSpacing = (this.config.width - 40) / cols;
-    const startY = 40;
+    const rows = 2;
+    const knobDiameter = 60; // 30px radius * 2
+    const labelHeight = 40; // Space for label + value text
+    const totalKnobHeight = knobDiameter + labelHeight;
+    // Adjusted horizontal spacing for reduced card width (500px max)
+    const horizontalSpacing = Math.max((this.config.width - 80) / cols, knobDiameter + 15);
+    const verticalSpacing = Math.max((this.config.height - 40) / rows, totalKnobHeight + 10);
+    const startY = 45;
 
     discharges.forEach((discharge, index) => {
       const col = index % cols;
       const row = Math.floor(index / cols);
-      const x = 20 + col * knobSpacing + knobSpacing / 2;
-      const y = startY + row * 50;
+      const x = 40 + col * horizontalSpacing + horizontalSpacing / 2;
+      const y = startY + row * verticalSpacing;
 
       const knob = new RotaryKnob(
         {

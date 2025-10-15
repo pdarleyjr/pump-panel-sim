@@ -30,6 +30,8 @@ export class Lever {
   private trackHeight: number = 120;
   private vertical: boolean = true;
   private touchFeedback: PIXI.Graphics | null = null;
+  private hasFocus: boolean = false;
+  private focusIndicator: PIXI.Graphics | null = null;
 
   constructor(
     config: ControlConfig,

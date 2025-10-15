@@ -36,7 +36,7 @@ export function getMemoryStats(app?: PIXI.Application): MemoryStats {
       rendererType: 'unknown',
     },
     tone: {
-      contextState: Tone.getContext().state,
+      contextState: 'suspended',
       activeNodes: 0,
     },
     browser: {},
@@ -46,6 +46,17 @@ export function getMemoryStats(app?: PIXI.Application): MemoryStats {
   if (app) {
     stats.pixi.stageChildren = countDisplayObjects(app.stage);
     stats.pixi.rendererType = app.renderer.type === 1 ? 'WebGL' : 'Canvas';
+  }
+
+  // Tone.js stats - only if context exists and is safe to access
+  try {
+    const context = Tone.getContext();
+    if (context && context.state) {
+      stats.tone.contextState = context.state;
+    }
+  } catch (error) {
+    // Context may not be initialized yet - safe to ignore
+    stats.tone.contextState = 'not-started';
   }
 
   // Count textures in cache
