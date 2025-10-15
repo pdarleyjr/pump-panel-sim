@@ -33,28 +33,44 @@ export function Panel({ pumpState, diagnostics, onChange }: PanelProps) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Create PIXI application with optimized settings
+    // Initialize PIXI Application with metallic aluminum background
     const app = new PIXI.Application();
+    
+    (async () => {
+      await app.init({
+        width: 900,
+        height: 600,
+        backgroundColor: 0xB8B8B8, // Metallic aluminum base color
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+        antialias: true,
+      });
 
-    app.init({
-      resizeTo: window,
-      background: '#0b0e17',
-      antialias: true,
-      resolution: Math.min(window.devicePixelRatio ?? 1, 2), // Cap at 2x for performance
-      preference: 'webgl2',
-      autoDensity: true,
-      powerPreference: 'high-performance',
-      preserveDrawingBuffer: false, // Better performance
-      clearBeforeRender: true,
-    }).then(() => {
-      if (!containerRef.current) return;
-      
       // Append canvas to container
       const canvas = app.canvas;
       containerRef.current.appendChild(canvas);
       
       // Store app reference
       appRef.current = app;
+
+      // Add metallic panel background
+      try {
+        const backgroundTexture = await PIXI.Assets.load('/panel-background.png');
+        const background = new PIXI.Sprite(backgroundTexture);
+        
+        // Scale to cover screen while maintaining aspect ratio
+        const scaleX = app.screen.width / background.width;
+        const scaleY = app.screen.height / background.height;
+        const scale = Math.max(scaleX, scaleY);
+        
+        background.scale.set(scale);
+        background.anchor.set(0.5);
+        background.position.set(app.screen.width / 2, app.screen.height / 2);
+        
+        app.stage.addChild(background);
+      } catch (error) {
+        console.warn('Failed to load panel background:', error);
+      }
 
       // Attach WebGL context guards for loss/restoration handling
       attachWebGLGuards(app);
@@ -74,7 +90,7 @@ export function Panel({ pumpState, diagnostics, onChange }: PanelProps) {
         }
       };
       window.addEventListener('resize', handleResize);
-    });
+    })();
 
     // Cleanup function with comprehensive resource disposal
     return () => {

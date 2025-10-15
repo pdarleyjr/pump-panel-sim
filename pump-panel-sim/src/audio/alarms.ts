@@ -10,6 +10,7 @@ let overpressureAlarm: Tone.Loop | null = null;
 let cavitationNoise: Tone.Noise | null = null;
 let cavitationFilter: Tone.Filter | null = null;
 let overheatingTone: Tone.Oscillator | null = null;
+let overheatingTremolo: Tone.Tremolo | null = null;
 let tankEmptyChime: Tone.Synth | null = null;
 
 /**
@@ -147,14 +148,14 @@ export async function playOverheatingWarning(severity: 'warning' | 'critical' | 
 
     // Add pulsing for critical and danger
     if (severity === 'critical' || severity === 'danger') {
-      const tremolo = new Tone.Tremolo({
+      overheatingTremolo = new Tone.Tremolo({
         frequency: severity === 'critical' ? 3 : 5,
         depth: 0.5,
       }).toDestination();
       
       overheatingTone.disconnect();
-      overheatingTone.connect(tremolo);
-      tremolo.start();
+      overheatingTone.connect(overheatingTremolo);
+      overheatingTremolo.start();
     }
   } catch (error) {
     if (import.meta.env.DEV) {

@@ -3,7 +3,7 @@
  * Displays current score and percentage in top-right corner
  */
 
-import { QuizState } from '../training/quiz';
+import type { QuizState } from '../training/quiz';
 import './ScoreHUD.css';
 
 interface ScoreHUDProps {

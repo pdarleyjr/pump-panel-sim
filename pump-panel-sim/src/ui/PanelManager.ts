@@ -1,6 +1,7 @@
 /**
  * Coordinates all UI elements for the pump panel
  * Manages controls, gauges, and their interaction with the simulation
+ * UPDATED: Card-based redesign with 25% size reduction
  */
 
 import * as PIXI from 'pixi.js';
@@ -16,6 +17,11 @@ import { FlowIndicator } from './indicators/FlowIndicator';
 import { StatusBadge } from './indicators/StatusBadge';
 import type { LEDIndicatorConfig, FlowIndicatorConfig, StatusBadgeConfig, StatusLevel } from './indicators/types';
 
+// Import card components
+import { CrosslayCard } from './cards/CrosslayCard';
+import { IntakeCard } from './cards/IntakeCard';
+import { LargeDiameterCard } from './cards/LargeDiameterCard';
+
 /**
  * Manages all UI elements on the pump panel
  */
@@ -26,6 +32,11 @@ export class PanelManager {
   
   private controls: Map<string, RotaryKnob | Lever> = new Map();
   private gauges: Map<string, PressureGauge> = new Map();
+  
+  // Card components
+  private crosslayCard: CrosslayCard | null = null;
+  private intakeCard: IntakeCard | null = null;
+  private largeDiameterCard: LargeDiameterCard | null = null;
   
   private throttleLever: Lever | null = null;
   private tankToPumpLever: Lever | null = null;
@@ -73,17 +84,14 @@ export class PanelManager {
     // Create water source indicator
     this.createWaterSourceIndicator(layoutConfig.compoundIntake);
 
-    // Create intake pressure gauges
+    // Create card components (NEW CARD-BASED DESIGN)
+    this.createCardComponents(layoutConfig);
+
+    // Create intake pressure gauges (not in cards)
     this.createIntakeGauges(layoutConfig.intakeGauges);
 
-    // Create discharge valve controls
-    this.createDischargeValveControls(layoutConfig.dischargeValves);
-
-    // Create throttle control
+    // Create throttle control (independent, not in card)
     this.createThrottle(layoutConfig.throttle);
-
-    // Create tank-to-pump valve control
-    this.createTankToPumpValve(layoutConfig.tankToPump);
 
     // Create primer button control
     this.createPrimerButton(layoutConfig.primer);
@@ -94,17 +102,55 @@ export class PanelManager {
     // Create tank level displays
     this.createTankDisplays(layoutConfig.waterTank, layoutConfig.foamTank);
 
-    // Create DRV controls
+    // Create DRV controls (independent, not in card)
     this.createDRVControls(layoutConfig.drvToggle, layoutConfig.drvSetpoint);
 
     // Create governor mode toggle
     this.createGovernorToggle(layoutConfig.throttle);
 
     // Create tank fill/recirculation control
-    this.createTankFillRecircControl(layoutConfig.tankToPump);
+    this.createTankFillRecircControl(layoutConfig.tankFillRecirc);
 
     // Create visual indicators
     this.createIndicators(layoutConfig);
+  }
+
+  /**
+   * Create card components (NEW)
+   */
+  private createCardComponents(layoutConfig: ReturnType<PanelLayout['getLayout']>): void {
+    // Create Crosslay/Trashline Unified Card
+    this.crosslayCard = new CrosslayCard({
+      x: layoutConfig.cards.crosslay.x,
+      y: layoutConfig.cards.crosslay.y,
+      width: layoutConfig.cards.crosslay.width,
+      height: layoutConfig.cards.crosslay.height,
+      onChange: this.onChange,
+    });
+    this.crosslayCard.create();
+    this.app.stage.addChild(this.crosslayCard.getContainer());
+
+    // Create Intake Controls Card
+    this.intakeCard = new IntakeCard({
+      x: layoutConfig.cards.intake.x,
+      y: layoutConfig.cards.intake.y,
+      width: layoutConfig.cards.intake.width,
+      height: layoutConfig.cards.intake.height,
+      onChange: this.onChange,
+    });
+    this.intakeCard.create();
+    this.app.stage.addChild(this.intakeCard.getContainer());
+
+    // Create Large Diameter Discharge Card
+    this.largeDiameterCard = new LargeDiameterCard({
+      x: layoutConfig.cards.largeDiameter.x,
+      y: layoutConfig.cards.largeDiameter.y,
+      width: layoutConfig.cards.largeDiameter.width,
+      height: layoutConfig.cards.largeDiameter.height,
+      onChange: this.onChange,
+    });
+    this.largeDiameterCard.create();
+    this.app.stage.addChild(this.largeDiameterCard.getContainer());
   }
 
   /**
@@ -322,59 +368,13 @@ export class PanelManager {
   }
 
   /**
-   * Create discharge valve controls (rotary knobs)
-   */
-  private createDischargeValveControls(positions: Record<DischargeId, { x: number; y: number }>): void {
-    const dischargeIds: DischargeId[] = [
-      'xlay1', 'xlay2', 'xlay3', 'trash',
-      'd2_5_a', 'd2_5_b', 'd2_5_c', 'd2_5_d',
-      'deck', 'rear_ldh'
-    ];
-
-    const labels: Record<DischargeId, string> = {
-      xlay1: 'X-Lay 1',
-      xlay2: 'X-Lay 2',
-      xlay3: 'X-Lay 3',
-      trash: 'Trash',
-      d2_5_a: '2½" A',
-      d2_5_b: '2½" B',
-      d2_5_c: '2½" C',
-      d2_5_d: '2½" D',
-      deck: 'Deck Gun',
-      rear_ldh: 'Rear LDH',
-    };
-
-    for (const id of dischargeIds) {
-      const pos = positions[id];
-      const knob = new RotaryKnob(
-        {
-          id: `discharge_${id}`,
-          type: ControlType.Rotary,
-          x: pos.x,
-          y: pos.y,
-          label: labels[id],
-          min: 0,
-          max: 100,
-          step: 5,
-          value: 0,
-        },
-        this.onChange
-      );
-
-      knob.create();
-      this.app.stage.addChild(knob.getContainer());
-      this.controls.set(`discharge_${id}`, knob);
-    }
-  }
-
-  /**
    * Create throttle control (large lever)
    */
   private createThrottle(position: { x: number; y: number }): void {
     this.throttleLever = new Lever(
       {
         id: 'throttle',
-        type: ControlType.Lever,
+        type: 'lever',
         x: position.x,
         y: position.y,
         label: 'Throttle',
@@ -385,7 +385,7 @@ export class PanelManager {
       },
       this.onChange,
       true, // vertical
-      150   // larger track height for throttle
+      120   // larger track height for throttle (reduced from 150)
     );
 
     this.throttleLever.create();
@@ -426,7 +426,7 @@ export class PanelManager {
     this.primerButton = new Lever(
       {
         id: 'primer',
-        type: ControlType.Lever,
+        type: 'lever',
         x: position.x,
         y: position.y,
         label: 'PRIMER',
@@ -437,7 +437,7 @@ export class PanelManager {
       },
       this.onChange,
       false, // horizontal
-      60     // track width for button
+      45     // track width for button (reduced from 60)
     );
 
     this.primerButton.create();
@@ -480,7 +480,7 @@ export class PanelManager {
     this.drvToggleLever = new Lever(
       {
         id: 'drv_toggle',
-        type: ControlType.Lever,
+        type: 'lever',
         x: togglePos.x,
         y: togglePos.y,
         label: 'RELIEF VALVE',
@@ -491,7 +491,7 @@ export class PanelManager {
       },
       this.onChange,
       true, // vertical
-      80    // track height
+      60    // track height (reduced from 80)
     );
 
     this.drvToggleLever.create();
@@ -502,7 +502,7 @@ export class PanelManager {
     this.drvSetpointKnob = new RotaryKnob(
       {
         id: 'drv_setpoint',
-        type: ControlType.Rotary,
+        type: 'rotary',
         x: setpointPos.x,
         y: setpointPos.y,
         label: 'RELIEF PSI',
@@ -527,8 +527,8 @@ export class PanelManager {
     this.governorToggleLever = new Lever(
       {
         id: 'governor_toggle',
-        type: ControlType.Lever,
-        x: throttlePosition.x + 100, // Position to the right of throttle
+        type: 'lever',
+        x: throttlePosition.x + 80, // Position to the right of throttle (reduced offset)
         y: throttlePosition.y,
         label: 'GOV: RPM/PSI',
         min: 0,
@@ -538,7 +538,7 @@ export class PanelManager {
       },
       this.onChange,
       true, // vertical
-      80    // track height
+      60    // track height (reduced from 80)
     );
 
     this.governorToggleLever.create();
@@ -554,9 +554,9 @@ export class PanelManager {
     this.tankFillRecircKnob = new RotaryKnob(
       {
         id: 'tank_fill_recirc',
-        type: ControlType.Rotary,
+        type: 'rotary',
         x: tankPosition.x,
-        y: tankPosition.y + 100, // Below tank-to-pump valve
+        y: tankPosition.y,
         label: 'TANK FILL/RECIRC',
         min: 0,
         max: 100,
@@ -787,12 +787,79 @@ export class PanelManager {
   }
 
   /**
-   * Update layout for window resize
+   * Update layout for window resize - repositions all controls
    */
   public resize(width: number, height: number): void {
     this.layout.updateDimensions(width, height);
-    // Note: A full implementation would reposition all controls here
-    // For now, this is a placeholder for future enhancement
+    const layoutConfig = this.layout.getLayout();
+    
+    // Reposition all controls
+    this.controls.forEach((control, id) => {
+      if (id === 'throttle' && this.throttleLever) {
+        this.throttleLever.setPosition(layoutConfig.throttle.x, layoutConfig.throttle.y);
+      } else if (id === 'tank_to_pump' && this.tankToPumpLever) {
+        this.tankToPumpLever.setPosition(layoutConfig.tankToPump.x, layoutConfig.tankToPump.y);
+      } else if (id === 'primer' && this.primerButton) {
+        this.primerButton.setPosition(layoutConfig.primer.x, layoutConfig.primer.y);
+      } else if (id === 'foam_percent' && this.foamPercentKnob) {
+        this.foamPercentKnob.setPosition(layoutConfig.foamPercent.x, layoutConfig.foamPercent.y);
+      } else if (id === 'drv_toggle' && this.drvToggleLever) {
+        this.drvToggleLever.setPosition(layoutConfig.drvToggle.x, layoutConfig.drvToggle.y);
+      } else if (id === 'drv_setpoint' && this.drvSetpointKnob) {
+        this.drvSetpointKnob.setPosition(layoutConfig.drvSetpoint.x, layoutConfig.drvSetpoint.y);
+      } else if (id === 'governor_toggle' && this.governorToggleLever) {
+        const throttleScaled = layoutConfig.throttle;
+        this.governorToggleLever.setPosition(throttleScaled.x + 100, throttleScaled.y);
+      } else if (id === 'tank_fill_recirc' && this.tankFillRecircKnob) {
+        this.tankFillRecircKnob.setPosition(layoutConfig.tankFillRecirc.x, layoutConfig.tankFillRecirc.y);
+      } else if (id.startsWith('discharge_')) {
+        const dischargeId = id.replace('discharge_', '') as DischargeId;
+        const pos = layoutConfig.dischargeValves[dischargeId];
+        if (pos) {
+          control.setPosition(pos.x, pos.y);
+        }
+      }
+    });
+    
+    // Reposition all gauges
+    if (this.masterDischargeGauge) {
+      this.masterDischargeGauge.setPosition(layoutConfig.masterDischarge.x, layoutConfig.masterDischarge.y);
+    }
+    if (this.compoundIntakeGauge) {
+      this.compoundIntakeGauge.setPosition(layoutConfig.compoundIntake.x, layoutConfig.compoundIntake.y);
+    }
+    
+    // Reposition water source indicator
+    if (this.waterSourceIndicator) {
+      this.waterSourceIndicator.x = layoutConfig.compoundIntake.x;
+      this.waterSourceIndicator.y = layoutConfig.compoundIntake.y + 180;
+    }
+    
+    // Reposition tank displays
+    if (this.waterTankText) {
+      this.waterTankText.x = layoutConfig.waterTank.x;
+      this.waterTankText.y = layoutConfig.waterTank.y;
+    }
+    if (this.foamTankText) {
+      this.foamTankText.x = layoutConfig.foamTank.x;
+      this.foamTankText.y = layoutConfig.foamTank.y;
+    }
+    
+    // Reposition all indicators
+    if (this.pumpEngagedLED) {
+      this.pumpEngagedLED.setPosition(layoutConfig.indicators.pumpEngaged.x, layoutConfig.indicators.pumpEngaged.y);
+    }
+    if (this.governorModeIndicator) {
+      this.governorModeIndicator.setPosition(layoutConfig.indicators.governorMode.x, layoutConfig.indicators.governorMode.y);
+    }
+    
+    // Reposition flow indicators
+    this.flowIndicators.forEach((indicator, lineId) => {
+      const pos = layoutConfig.flowIndicators[lineId];
+      if (pos) {
+        indicator.setPosition(pos.x, pos.y);
+      }
+    });
   }
 
   /**
@@ -823,6 +890,20 @@ export class PanelManager {
    * Clean up all controls and gauges
    */
   public destroy(): void {
+    // Destroy card components
+    if (this.crosslayCard) {
+      this.crosslayCard.destroy();
+      this.crosslayCard = null;
+    }
+    if (this.intakeCard) {
+      this.intakeCard.destroy();
+      this.intakeCard = null;
+    }
+    if (this.largeDiameterCard) {
+      this.largeDiameterCard.destroy();
+      this.largeDiameterCard = null;
+    }
+
     // Destroy all controls
     this.controls.forEach((control) => control.destroy());
     this.controls.clear();

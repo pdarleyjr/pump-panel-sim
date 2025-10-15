@@ -10,7 +10,7 @@ import * as PIXI from 'pixi.js';
  * @param color - Color of the knob (hex)
  * @returns Container with knob and indicator
  */
-export function createKnobGraphic(radius: number = 40, color: number = 0x4a5568): PIXI.Container {
+export function createKnobGraphic(radius: number = 30, color: number = 0x4a5568): PIXI.Container {
   const container = new PIXI.Container();
   
   // Create the knob circle

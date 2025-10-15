@@ -1,3 +1,30 @@
+/* Root CSS Variables */
+:root {
+  /* Metallic Aluminum Color Palette */
+  --aluminum-base: #B8B8B8;
+  --aluminum-light: #D0D0D0;
+  --aluminum-dark: #8C8C8C;
+  --panel-bg: #2a2a2a;
+  --text-primary: #FFFFFF;
+  --text-secondary: #E0E0E0;
+  --green-operational: #00FF00;
+  --red-critical: #FF3300;
+  --blue-info: #00AAFF;
+  
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: var(--panel-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -42,4 +69,24 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Action Card Styling */
+.action-card {
+  border: 2px solid #606060;
+  background: rgba(50, 50, 50, 0.85);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.action-card__title {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }

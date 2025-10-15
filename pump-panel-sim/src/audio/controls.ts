@@ -9,6 +9,7 @@ import { ensureAudio, isAudioReady } from './boot';
 let primerWhirr: Tone.Noise | null = null;
 let primerFilter: Tone.Filter | null = null;
 let primerLoop: Tone.Loop | null = null;
+let primerLFO: Tone.LFO | null = null;
 
 /**
  * Play tank-to-pump valve open sound
@@ -222,17 +223,17 @@ export async function playPrimerStart(): Promise<void> {
       frequency: 120,
       Q: 3,
     }).toDestination();
-    
     primerWhirr.connect(primerFilter);
     primerWhirr.volume.value = -20;
 
     // Add slight frequency modulation for realistic motor sound
-    const lfo = new Tone.LFO({
+    primerLFO = new Tone.LFO({
       frequency: 8,
       min: 100,
       max: 140,
     });
-    lfo.connect(primerFilter.frequency);
+    primerLFO.connect(primerFilter.frequency);
+    primerLFO.start();
     lfo.start();
 
     // Add occasional "surges" in the primer sound

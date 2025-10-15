@@ -3,7 +3,7 @@
  * Provides step-by-step guided training with validation and scoring
  */
 
-import { PumpState } from '../sim/model';
+import type { PumpState } from '../sim/model';
 
 /**
  * A single quiz step with validation logic

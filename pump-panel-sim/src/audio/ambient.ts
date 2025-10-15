@@ -11,6 +11,7 @@ let waterFlowFilter: Tone.Filter | null = null;
 let waterFlowGain: Tone.Gain | null = null;
 let foamHiss: Tone.Noise | null = null;
 let foamFilter: Tone.Filter | null = null;
+let foamLFO: Tone.LFO | null = null;
 
 /**
  * Start water flow ambient sound
@@ -133,13 +134,13 @@ export async function playFoamActivation(): Promise<void> {
     foamHiss.volume.value = -22;
 
     // Add slight modulation for texture
-    const lfo = new Tone.LFO({
+    foamLFO = new Tone.LFO({
       frequency: 6,
       min: 2800,
       max: 3200,
     });
-    lfo.connect(foamFilter.frequency);
-    lfo.start();
+    foamLFO.connect(foamFilter.frequency);
+    foamLFO.start();
   } catch (error) {
     if (import.meta.env.DEV) {
       console.error('[Ambient] Error playing foam activation:', error);

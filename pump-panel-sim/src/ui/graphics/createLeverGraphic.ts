@@ -14,9 +14,9 @@ import * as PIXI from 'pixi.js';
  * @returns Container with lever graphic
  */
 export function createLeverGraphic(
-  width: number = 30,
-  height: number = 120,
-  handleLength: number = 40,
+  width: number = 22.5,
+  height: number = 90,
+  handleLength: number = 30,
   color: number = 0x4a5568,
   vertical: boolean = true
 ): PIXI.Container {

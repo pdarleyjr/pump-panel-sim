@@ -76,7 +76,7 @@ export class PressureGauge {
     if (needsAdvanced) {
       // Build gauge options for advanced gauge
       const gaugeOptions: GaugeGraphicOptions = {
-        radius: config.radius || 80,
+        radius: config.radius || 60,
         startAngle: this.startAngle,
         endAngle: this.endAngle,
         numTicks: 12,
@@ -115,7 +115,7 @@ export class PressureGauge {
     } else {
       // Use basic gauge for regular gauges
       this.gaugeGraphic = createGaugeGraphic(
-        config.radius || 80,
+        config.radius || 60,
         this.startAngle,
         this.endAngle,
         12,
@@ -185,7 +185,7 @@ export class PressureGauge {
     this.needle = (this.gaugeGraphic as any).needle;
 
     // Add label text above gauge
-    const radius = this.config.radius || 80;
+    const radius = this.config.radius || 60;
     const fontSize = this.config.isMaster ? 18 : 14;
     this.label = new PIXI.Text({
       text: this.config.label,
@@ -347,7 +347,7 @@ export class PressureGauge {
     if (this.currentNeedleColor === color) return;
     
     this.currentNeedleColor = color;
-    const radius = this.config.radius || 80;
+    const radius = this.config.radius || 60;
     
     // Clear and redraw needle
     this.needle.clear();
