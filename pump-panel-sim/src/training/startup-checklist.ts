@@ -54,8 +54,8 @@ export const PIERCE_PUC_STARTUP: ChecklistStep[] = [
     id: 'test_governor',
     description: '6. Test governor response',
     check: (state) => {
-      // Governor is tested if it's in PSI mode and setpoint is above idle (>50 PSI)
-      return state.governor.mode === 'PSI' && state.governor.setpoint > 50;
+      // Governor is tested if it's in PRESSURE mode and engine RPM is above idle
+      return state.runtime.governor === 'PRESSURE' && state.engineRpm > 1000;
     },
     helpText: 'Set governor to PSI mode and adjust setpoint. Verify RPM changes.',
   },

@@ -2,13 +2,14 @@
  * Main application component
  */
 
-import { useState } from 'react';
 import { AudioProvider } from './audio/AudioProvider';
 import { SimulationProvider, useSimulation } from './sim/SimulationContext';
-import { SettingsPanel } from './ui/Settings';
-import { SimulatorUI } from './ui/SimulatorUI';
-import { TouchDebugOverlay } from './ui/debug/TouchDebugOverlay';
-import { KeyboardShortcutsOverlay } from './ui/keyboard/KeyboardShortcutsOverlay';
+// Temporarily commented out for clean rebuild integration
+// import { SettingsPanel } from './ui/Settings';
+// import { SimulatorUI } from './ui/SimulatorUI';
+// import { TouchDebugOverlay } from './ui/debug/TouchDebugOverlay';
+// import { KeyboardShortcutsOverlay } from './ui/keyboard/KeyboardShortcutsOverlay';
+import PanelClean from './ui/PanelClean';
 import './App.css';
 
 /**
@@ -26,25 +27,14 @@ function AudioBridge({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  // Training overlays state - shared between Settings and SimulatorUI
-  const [trainingOverlaysEnabled, setTrainingOverlaysEnabled] = useState(() => {
-    const stored = localStorage.getItem('trainingOverlaysEnabled');
-    return stored !== null ? stored === 'true' : true;
-  });
-
-  // Touch debug overlay state
-  const [touchDebugEnabled, setTouchDebugEnabled] = useState(() => {
-    const stored = localStorage.getItem('touchDebugEnabled');
-    return stored === 'true';
-  });
-
-  // Keyboard shortcuts overlay state
-  const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false);
-
   return (
     <SimulationProvider>
       <AudioBridge>
-        <SettingsPanel
+        {/* NEW CLEAN REBUILD COMPONENT */}
+        <PanelClean />
+        
+        {/* TEMPORARILY COMMENTED OUT - OLD UI SYSTEM */}
+        {/* <SettingsPanel
           trainingOverlaysEnabled={trainingOverlaysEnabled}
           onTrainingOverlaysToggle={setTrainingOverlaysEnabled}
           touchDebugEnabled={touchDebugEnabled}
@@ -58,7 +48,7 @@ export default function App() {
         <KeyboardShortcutsOverlay
           isOpen={keyboardHelpOpen}
           onClose={() => setKeyboardHelpOpen(false)}
-        />
+        /> */}
       </AudioBridge>
     </SimulationProvider>
   );
