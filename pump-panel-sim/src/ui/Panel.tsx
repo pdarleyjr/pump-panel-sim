@@ -329,7 +329,7 @@ export default function Panel() {
   useEffect(() => {
     if (source === 'tank') setIntakePsi(0);
     if (source === 'hydrant' && intakePsi === 0) setIntakePsi(50);
-  }, [source]);
+  }, [source, intakePsi]);
 
   // Engine RPM logic with discharge pressure coupling
   useEffect(() => {
@@ -493,38 +493,6 @@ export default function Panel() {
                   discharges={discharges}
                   setDischarges={setDischarges}
                 />
-                
-                {/* Bottom Control Row */}
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="text-white text-xs">Intake: {intakePsi} PSI</label>
-                    <input 
-                      type="range" 
-                      min="-30" 
-                      max="200" 
-                      value={intakePsi}
-                      disabled={source === 'tank'}
-                      onChange={(e) => setIntakePsi(parseInt(e.target.value))}
-                      className="w-full"
-                    />
-                  </div>
-                  <button 
-                    onClick={() => setPrimerOn(!primerOn)}
-                    className={`px-3 py-1 rounded ${primerOn ? 'bg-green-500' : 'bg-gray-600'} text-white text-xs`}
-                  >
-                    Primer {primerOn ? 'ON' : 'OFF'}
-                  </button>
-                  <div className="flex-1">
-                    <label className="text-white text-xs">Tank Fill: {tankFillLevel}%</label>
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="100" 
-                      value={tankFillLevel}
-                      onChange={(e) => setTankFillLevel(parseInt(e.target.value))} className="w-full"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
