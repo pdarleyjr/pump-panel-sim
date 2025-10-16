@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, ChevronLeft, ChevronRight, Gauge, Power, Droplet, Volume2, VolumeX } from "lucide-react";
+import { Settings, Gauge, Power, Droplet, Volume2, VolumeX } from "lucide-react";
 
 /**
  * PUC Pump Panel — Production Ready (Phase 6 Complete)
@@ -41,17 +41,6 @@ const PUMP_BASE_IDLE = 750;      // initial RPM after pump engagement
 const MAX_SAFE_PSI = 400;        // Maximum safe discharge pressure
 const MAX_RPM = 2200;            // Maximum engine RPM
 
-const FOAM_ENABLED_DISCHARGES = {
-  crosslay1: true,
-  crosslay2: true,
-  crosslay3: true,
-  frontTrashline: true,
-  twoPointFiveA: true,
-  twoPointFiveB: false,
-  steamerLeft: false,
-  steamerRight: false,
-};
-
 // Type definitions for new state model
 type Source = 'tank' | 'hydrant';
 
@@ -65,14 +54,7 @@ type DischargeState = {
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
 // ======= PHASE 3 CROSSLAY FUNCTIONS ==================================================
-const getColorClass = (i: number) => {
-  switch (i) {
-    case 1: return 'border-l-blue-500';
-    case 2: return 'border-l-red-500';
-    case 3: return 'border-l-yellow-400';
-    default: return 'border-l-gray-500';
-  }
-};
+// Removed unused getColorClass function
 
 // ======= AUDIO ENGINE ========================================
 function useEngineAudio(enabled: boolean) {
@@ -313,10 +295,6 @@ export default function Panel() {
     twoPointFiveA: { open: false, setPsi: 0 },
   });
 
-  // Legacy state for backward compatibility with UI controls
-  const [primerOn, setPrimerOn] = useState<boolean>(false);
-  const [tankFillLevel, setTankFillLevel] = useState<number>(0);
-  
   // Calculate Master Discharge as highest open discharge setpoint
   const openLinePressures = Object.values(discharges).map(d => (d.open ? d.setPsi : 0));
   const masterDischargePsi = Math.min(Math.max(...openLinePressures, 0), MAX_SAFE_PSI);
@@ -399,25 +377,7 @@ export default function Panel() {
           {/* LEFT: Card Zone */}
           <div className="col-span-12 lg:col-span-5">
             <div className="rounded-2xl shadow-xl bg-white/5 border border-white/10 p-4 min-h-[260px]">
-              <div className="flex items-center justify-between mb-2">
-                <button
-                  onClick={() => setCardIndex(0)}
-                  className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50"
-                  disabled={cardIndex === 0}
-                  aria-label="Show Toggle Card"
-                >
-                  <ChevronLeft className="inline" /> Back
-                </button>
-                <div className="text-sm opacity-80">Card {cardIndex + 1} / 2</div>
-                <button
-                  onClick={() => setCardIndex(1)}
-                  className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50"
-                  disabled={cardIndex === 1}
-                  aria-label="Show Pump Data Card"
-                >
-                  Forward <ChevronRight className="inline" />
-                </button>
-              </div>
+              {/* Removed carousel navigation - cards switch automatically on pump engagement */}
 
               <AnimatePresence mode="wait">
                 {cardIndex === 0 ? (
