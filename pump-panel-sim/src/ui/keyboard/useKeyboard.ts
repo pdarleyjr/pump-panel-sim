@@ -51,26 +51,27 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
           }
 
           // Handle shortcut actions locally
-          handleShortcutAction(shortcut.id, event);
+          handleShortcutAction(shortcut.id);
           return;
         }
       }
     },
-    [enabled]
+    [state, dispatch, enabled]
   );
 
   const handleShortcutAction = useCallback(
-    (shortcutId: string, event: KeyboardEvent) => {
+    (shortcutId: string) => {
       // Handle shortcuts that need access to current state
       switch (shortcutId) {
         case 'pump-engage-toggle':
           dispatch({ type: 'PUMP_ENGAGE', engaged: !state.pump.engaged });
           break;
 
-        case 'governor-mode-toggle':
+        case 'governor-mode-toggle': {
           const newMode = state.pump.governor === 'RPM' ? 'PRESSURE' : 'RPM';
           dispatch({ type: 'GOVERNOR_MODE', mode: newMode });
           break;
+        }
 
         case 'governor-setpoint-increase': {
           const step = state.pump.governor === 'RPM' ? 100 : 10;
@@ -120,7 +121,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
           dispatch({ type: 'TANK_TO_PUMP', open: !state.tankToPumpOpen });
           break;
 
-        case 'foam-system-toggle':
+        case 'foam-system-toggle': {
           // Toggle foam on first discharge line for now
           const firstDischarge = Object.keys(state.discharges)[0];
           if (firstDischarge) {
@@ -128,6 +129,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
             dispatch({ type: 'FOAM_PCT', id: firstDischarge, pct: currentFoam > 0 ? 0 : 3 });
           }
           break;
+        }
 
         case 'throttle-increase':
           dispatch({ type: 'SETPOINT', value: Math.min(100, state.pump.setpoint + 10) });

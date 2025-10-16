@@ -15,7 +15,7 @@ export interface InstructorMessage {
 }
 
 let ws: WebSocket | null = null;
-let messageHandlers: Set<(msg: InstructorMessage) => void> = new Set();
+const messageHandlers: Set<(msg: InstructorMessage) => void> = new Set();
 let heartbeatInterval: NodeJS.Timeout | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 

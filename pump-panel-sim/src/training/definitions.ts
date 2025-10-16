@@ -81,7 +81,7 @@ export function getAllDefinitionIds(): string[] {
 export function searchDefinitions(keyword: string): string[] {
   const lowerKeyword = keyword.toLowerCase();
   return Object.entries(CONTROL_DEFINITIONS)
-    .filter(([_, definition]) => definition.toLowerCase().includes(lowerKeyword))
+    .filter(([_key, definition]) => definition.toLowerCase().includes(lowerKeyword))
     .map(([id]) => id);
 }
 

@@ -5,7 +5,7 @@
 
 import type { SimState } from './state';
 import type { DischargeId, LineConfig, FoamSystem, PumpState } from './model';
-import { frictionLossPsi, pumpDischargePressure, smoothBoreFlow } from '../hydraulics/formulas';
+import { frictionLossPsi, pumpDischargePressure } from '../hydraulics/formulas';
 import { NOZZLE_PSI } from '../hydraulics/standards';
 import { applyDRV } from './drv';
 import { intakeGauge, dischargeGauge } from './gauges';
@@ -20,7 +20,7 @@ import {
   createGovernor,
   type GovernorState
 } from './governor';
-import { calculateMaxPDP, calculateRequiredRPM, checkRunoutCondition } from './pump-curves';
+import { calculateMaxPDP, checkRunoutCondition } from './pump-curves';
 import { updateTemperatures, getTemperatureWarnings } from './overheating';
 
 /**
@@ -457,7 +457,7 @@ export function simulateStep(
   
   // STEP 5.5: Track overpressure and handle hose burst (Phase 2.3)
   let overpressureDuration = currentState.overpressureDurationSec || 0;
-  let burstLines = new Set(currentState.burstLines || []);
+  const burstLines = new Set(currentState.burstLines || []);
   let overpressureWarning: string | null = null;
   
   // Track overpressure duration when discharge pressure exceeds 400 PSI
@@ -625,8 +625,9 @@ export function simulateStep(
     }
   }
   
-  // STEP 12: Update foam consumption (only if foam system is enabled)
-  const foamSystemEnabled = currentState.foam.enabled && currentState.interlocks.engaged && actualTotalFlowGpm > 0;
+  // STEP 12: Update foam consumption (if foam system enabled OR any lines have foam enabled)
+  const hasEnabledFoamLines = currentState.foam.enabledLines.size > 0;
+  const foamSystemEnabled = (currentState.foam.enabled || hasEnabledFoamLines) && currentState.interlocks.engaged && totalFoamGpm > 0;
   
   const updatedFoam = updateFoamConsumption(
     currentState.foam,

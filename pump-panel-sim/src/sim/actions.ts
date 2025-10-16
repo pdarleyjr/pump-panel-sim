@@ -76,13 +76,14 @@ export function reducer(state: SimState, action: Action): SimState {
         },
       };
 
-    case 'WATER_SOURCE':
+    case 'WATER_SOURCE': {
       // Update all intakes to the new source
       const newIntakes = { ...state.intakes };
       Object.keys(newIntakes).forEach(id => {
         newIntakes[id] = { ...newIntakes[id], source: action.source };
       });
       return { ...state, intakes: newIntakes };
+    }
 
     case 'TANK_TO_PUMP':
       return { ...state, tankToPumpOpen: action.open };
@@ -124,22 +125,25 @@ export function reducer(state: SimState, action: Action): SimState {
       // Toggle DRV enabled/disabled state
       return { ...state, pump: { ...state.pump, drv: { ...state.pump.drv, enabled: action.enabled } } };
 
-    case 'DRV_SETPOINT_SET':
+    case 'DRV_SETPOINT_SET': {
       // Set DRV relief pressure setpoint (clamped to 75-300 PSI range)
       const clampedPsi = Math.max(75, Math.min(300, action.psi));
       return { ...state, pump: { ...state.pump, drv: { ...state.pump.drv, setpointPsi: clampedPsi } } };
+    }
 
-    case 'TANK_FILL_RECIRC_SET':
+    case 'TANK_FILL_RECIRC_SET': {
       // Set tank fill/recirculation percentage (clamped to 0-100 range)
       const clampedPct = Math.max(0, Math.min(100, action.pct));
       return { ...state, tankFillRecircPct: clampedPct };
+    }
 
-    case 'TICK':
+    case 'TICK': {
       // Perform time-based updates (foam consumption, temperature, tank water, etc.)
       // This action is dispatched every 100ms by the animation loop
       const timeBasedUpdates = updateTimeBasedState(state, action.deltaTime);
       // Merge time-based updates without overriding user inputs
       return { ...state, ...timeBasedUpdates };
+    }
 
     // Instructor control actions
     case 'SET_INTAKE_PRESSURE':

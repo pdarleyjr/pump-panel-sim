@@ -6,6 +6,7 @@
  */
 
 import type { SimState } from './state';
+import type { PumpState } from './model';
 
 /**
  * Pierce PUC: Compute master intake gauge reading based on water source
@@ -178,7 +179,7 @@ export interface PumpStatus {
   warnings: string[];
 }
 
-export function getPumpStatus(state: any): PumpStatus {
+export function getPumpStatus(state: PumpState): PumpStatus {
   const intakeData = intakeGauge(
     state.waterSource,
     state.intakePressurePsi || 0,
@@ -188,12 +189,18 @@ export function getPumpStatus(state: any): PumpStatus {
   
   const dischargeData = dischargeGauge(state.dischargePsi || 0);
   
-  // Combine all warnings
+  // Combine all warnings from multiple sources
   const warnings: string[] = [];
   if (intakeData.warning) warnings.push(intakeData.warning);
   if (dischargeData.warning) warnings.push(dischargeData.warning);
-  if (state.warnings && Array.isArray(state.warnings)) {
-    warnings.push(...state.warnings);
+  
+  // Add warnings from state (handle both Set and Array)
+  if (state.warnings) {
+    if (state.warnings instanceof Set) {
+      warnings.push(...Array.from(state.warnings));
+    } else if (Array.isArray(state.warnings)) {
+      warnings.push(...(state.warnings as string[]));
+    }
   }
   
   // Determine mode from governor
@@ -206,7 +213,7 @@ export function getPumpStatus(state: any): PumpStatus {
     setpoint = state.dischargePsi || 0;
   } else {
     // For RPM mode, setpoint is target RPM
-    setpoint = state.runtime?.rpm || state.runtimeRpm || 0;
+    setpoint = state.runtime?.rpm || 0;
   }
   
   return {
@@ -214,7 +221,7 @@ export function getPumpStatus(state: any): PumpStatus {
     setpoint,
     setpointUnit: mode === 'PSI' ? 'PSI' : 'RPM',
     actualPDP: state.dischargePsi || 0,
-    actualRPM: state.runtime?.rpm || state.runtimeRpm || 0,
+    actualRPM: state.runtime?.rpm || 0,
     intakePsi: intakeData.psi || 0,
     intakeVacuumInHg: intakeData.vacuumInHg,
     totalFlowGpm: state.totalFlowGpm || 0,

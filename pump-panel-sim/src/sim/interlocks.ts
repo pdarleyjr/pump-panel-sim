@@ -135,9 +135,9 @@ export function validateState(state: SimState): string[] {
     warnings.push('Foam concentrate depleted');
   }
   
-  // Check if drafting but primer not active
+  // Check if drafting but primer not active (and not already primed)
   const isDrafting = Object.values(state.intakes).some(i => i.source === 'draft');
-  if (isDrafting && !state.primerActive && state.pump.engaged) {
+  if (isDrafting && !state.primerActive && !state.primed && state.pump.engaged) {
     warnings.push('Drafting without primer - pump may not flow');
   }
   

@@ -114,15 +114,15 @@ export function applyPressureLimits(discharge: number): {
    rpm: number,
    intakePsi: number
  ): number {
-   // Normalize RPM to rated speed (2200 RPM for this pump)
-   const ratedRpm = 2200;
-   const rpmFactor = rpm / ratedRpm;
-   
-   // Scale flow by RPM factor for curve lookup
-   const effectiveFlow = flowGpm / Math.max(rpmFactor, 0.1);
-   
-   // Find appropriate curve segment for interpolation
-   let maxPressure = 0;
+  // Normalize RPM to rated speed (2200 RPM for this pump)
+  const ratedRpm = 2200;
+  const rpmFactor = rpm / ratedRpm;
+  
+  // Use actual flow for curve lookup (affinity law: flow ∝ RPM, not flow/RPM)
+  const effectiveFlow = flowGpm;
+  
+  // Find appropriate curve segment for interpolation
+  let maxPressure = 0;
    const lastPoint = NFPA_PUMP_CURVE[NFPA_PUMP_CURVE.length - 1];
    const firstPoint = NFPA_PUMP_CURVE[0];
    

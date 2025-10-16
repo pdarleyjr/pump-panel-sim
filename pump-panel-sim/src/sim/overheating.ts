@@ -96,6 +96,7 @@ export function getTemperatureWarnings(temps: TemperatureState): string[] {
     warnings.push('Increase flow or enable recirculation to cool pump');
   } else if (temps.pumpTempF > 200) {
     // OVERHEATING: Danger zone
+    warnings.push('PUMP OVERHEATING');
     warnings.push(`⚠️ Pump Overheating: ${Math.round(temps.pumpTempF)}°F`);
     warnings.push('Increase flow or enable recirculation to cool pump');
   } else if (temps.pumpTempF > 180) {
