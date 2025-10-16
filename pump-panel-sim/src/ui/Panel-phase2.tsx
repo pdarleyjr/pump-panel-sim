@@ -3,68 +3,44 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Settings, ChevronLeft, ChevronRight, Gauge, Power, Droplet, Volume2, VolumeX } from "lucide-react";
 
 /**
- * PUC Pump Panel — Clean Rebuild v0.1 (Foundations)
+ * PUC Pump Panel — Phase 2: Toggle Engagement System
  * ---------------------------------------------------------------------------
- * Purpose
- *  - Throw away all legacy CSS/graphics and render a NEW, grid-based panel.
- *  - Zero overlap using a mathematical grid + card system.
- *  - Metallic background (supply your own image URL in METAL_BG).
- *  - Start with Engine/Pump OFF; all gauges zeroed; all valves closed.
- *  - Engage pump via a Toggle Card (lights green briefly), then auto-swap to
- *    Pump Data card with back/forward arrows to flip between them.
- *  - Optional FOAM toggle enables foam-capable discharges only and shows a
- *    foam level gauge (30 gal). Water tank is 720 gal.
- *  - Sound is OFF by default; user can enable via Settings. Pump audio reacts
- *    to engine RPM.
- *  - Gauges: Analog SVG with a moving needle + digital numeric under each.
- *  - No training mode, no scenarios. Strictly the base simulator shell.
- *
- * Tech & Style
- *  - Single-file React component. Tailwind for layout classes (no external CSS).
- *  - Clean, modern, high-contrast UI. Cards with rounded-2xl & soft shadow.
- *  - Grid is responsive and prevents overlaps.
- *
- * IMPORTANT for assets:
- *  - Replace METAL_BG with the path to your metallic image
- *    (e.g., /assets/metal.jpg). The user-provided file name can be copied into
- *    /public and referenced here. For dev preview, a data URL also works.
- *  - Any photorealistic assets you generate can be placed in /public/assets and
- *    swapped into the placeholders noted below.
+ * - Horizontal 3-tile strip layout for ToggleCard
+ * - Green flash animation with "ENGAGED" text
+ * - 500ms delay before card swap
+ * - Middle button styled as disabled/non-functional
  */
 
 // ======= CONFIG / CONSTANTS ==================================================
-const METAL_BG = "/panel-background.png"; // metallic background image (FULL-BLEED)
+const METAL_BG = "/assets/ChatGPT_Image_Oct_14_2025_05_32_49_PM.png";
 
 const GRID = {
-  cols: 12, // use a 12-col grid, responsive
-  rows: 8,  // logical rows for height zoning (not strict CSS rows)
-  gap: 16,  // px gap between grid items
+  cols: 12,
+  rows: 8,
+  gap: 16,
 };
 
-const TANK_CAPACITY_GAL = 720; // water
-const FOAM_CAPACITY_GAL = 30;  // foam
+const TANK_CAPACITY_GAL = 720;
+const FOAM_CAPACITY_GAL = 30;
 
-// Defaults that can be tuned against the Pierce manual / apparatus profile
-const START_RPM = 750; // initial governor target when pump engages
-const IDLE_RPM = 600;  // engine idle when pump OFF
-const MAX_SAFE_PDP = 400; // PSI max safe PDP (redline visual only)
+const START_RPM = 750;
+const IDLE_RPM = 600;
+const MAX_SAFE_PDP = 400;
 
-// Which discharges can flow foam in this simplified foundation build
 const FOAM_ENABLED_DISCHARGES = {
   crosslay1: true,
   crosslay2: true,
   crosslay3: true,
   frontTrashline: true,
-  twoPointFiveA: true, // only one 2.5" discharge supports foam
+  twoPointFiveA: true,
   twoPointFiveB: false,
   steamerLeft: false,
   steamerRight: false,
 };
 
-// Small helper to clamp numbers
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
-// ======= AUDIO ENGINE (gesture-gated) ========================================
+// ======= AUDIO ENGINE ========================================
 function useEngineAudio(enabled: boolean) {
   const audioRef = useRef<{ ctx: AudioContext; gain: GainNode; osc: OscillatorNode } | null>(null);
 
@@ -75,12 +51,12 @@ function useEngineAudio(enabled: boolean) {
       const ctx = new AudioContextClass();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = "sawtooth"; // engine-like timbre; filtered below
+      osc.type = "sawtooth";
       const filter = ctx.createBiquadFilter();
       filter.type = "lowpass";
       filter.frequency.value = 800;
       osc.connect(filter).connect(gain).connect(ctx.destination);
-      gain.gain.value = 0; // start muted
+      gain.gain.value = 0;
       osc.start();
       audioRef.current = { ctx, gain, osc };
     }
@@ -96,9 +72,9 @@ function useEngineAudio(enabled: boolean) {
 
   const setLevel = (rpm: number, engaged: boolean) => {
     const a = audioRef.current; if (!a) return;
-    const norm = clamp((rpm - 400) / 2000, 0, 1); // normalize rough RPM range
+    const norm = clamp((rpm - 400) / 2000, 0, 1);
     a.gain.gain.linearRampToValueAtTime(engaged ? norm * 0.15 : 0, a.ctx.currentTime + 0.05);
-    const freq = 40 + norm * 140; // base engine note
+    const freq = 40 + norm * 140;
     (a.osc as OscillatorNode).frequency.linearRampToValueAtTime(freq, a.ctx.currentTime + 0.05);
   };
 
@@ -110,29 +86,26 @@ function useEngineAudio(enabled: boolean) {
   return { setLevel, kill };
 }
 
-// ======= ANALOG GAUGE (SVG) ==================================================
+// ======= ANALOG GAUGE ==================================================
 interface AnalogGaugeProps {
   label: string;
   unit: string;
   min: number;
   max: number;
   value: number;
-  redline?: number; // draw arc in red above this value
+  redline?: number;
 }
 
 const AnalogGauge: React.FC<AnalogGaugeProps> = ({ label, unit, min, max, value, redline }) => {
-  // 220-degree sweep: -110° (left) to +110° (right)
   const sweepDeg = 220;
   const startDeg = -110;
   const pct = clamp((value - min) / (max - min), 0, 1);
-  const angle = startDeg + pct * sweepDeg; // -110 to +110
+  const angle = startDeg + pct * sweepDeg;
 
   return (
     <div className="flex flex-col items-center select-none">
       <svg viewBox="0 0 200 140" className="w-full max-w-[260px]">
-        {/* gauge arc */}
         <path d="M10,130 A90,90 0 1,1 190,130" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={14} />
-        {/* redline */}
         {redline !== undefined && (
           <path
             d={describeArc(100, 130, 90, valueToDeg(redline, min, max, startDeg, sweepDeg), 110)}
@@ -141,7 +114,6 @@ const AnalogGauge: React.FC<AnalogGaugeProps> = ({ label, unit, min, max, value,
             strokeWidth={14}
           />
         )}
-        {/* needle pivot */}
         <line
           x1={100}
           y1={130}
@@ -152,7 +124,6 @@ const AnalogGauge: React.FC<AnalogGaugeProps> = ({ label, unit, min, max, value,
           strokeLinecap="round"
         />
         <circle cx={100} cy={130} r={6} fill="white" />
-        {/* ticks */}
         {Array.from({ length: 11 }).map((_, i) => {
           const tPct = i / 10;
           const tAngle = startDeg + tPct * sweepDeg;
@@ -175,11 +146,11 @@ function valueToDeg(val: number, min: number, max: number, startDeg: number, swe
   return startDeg + pct * sweepDeg;
 }
 
-// Describe arc helper for redline path
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
   const a = (angleDeg - 90) * (Math.PI / 180.0);
   return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
 }
+
 function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
   const start = polarToCartesian(cx, cy, r, endAngle);
   const end = polarToCartesian(cx, cy, r, startAngle);
@@ -191,17 +162,20 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
 }
 
 // ======= MAIN PANEL ===========================================================
-export default function PanelClean() {
+export default function Panel() {
   // Core state
   const [pumpEngaged, setPumpEngaged] = useState(false);
   const [foamEnabled, setFoamEnabled] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [soundOn, setSoundOn] = useState(false); // starts OFF per requirements
-  const [cardIndex, setCardIndex] = useState<0 | 1>(0); // 0=Toggle card, 1=Pump Data
+  const [soundOn, setSoundOn] = useState(false);
+  const [cardIndex, setCardIndex] = useState<0 | 1>(0);
+  
+  // Animation state for engagement
+  const [engaging, setEngaging] = useState<null | 'water' | 'foam'>(null);
 
-  // Simulation state (foundation only)
+  // Simulation state
   const [rpm, setRpm] = useState(IDLE_RPM);
-  const [pdp, setPdp] = useState(0); // pump discharge pressure (PSI)
+  const [pdp, setPdp] = useState(0);
   const [intakePsi, setIntakePsi] = useState(0);
   const [waterGal] = useState(TANK_CAPACITY_GAL);
   const [foamGal] = useState(FOAM_CAPACITY_GAL);
@@ -210,13 +184,19 @@ export default function PanelClean() {
   const audio = useEngineAudio(soundOn);
   useEffect(() => { audio.setLevel(rpm, pumpEngaged); }, [audio, rpm, pumpEngaged]);
 
-  // Engage/disengage handlers
+  // Engage/disengage handlers with green flash animation
   const engagePump = (mode: "water" | "foam") => {
-    // Toggle card flashes green then swaps to Pump Data
-    if (mode === "foam") setFoamEnabled(true); else setFoamEnabled(false);
-    setPumpEngaged(true);
-    setRpm(START_RPM);
-    setTimeout(() => setCardIndex(1), 500); // brief confirmation before swap
+    // Trigger engagement animation
+    setEngaging(mode);
+    
+    // After 500ms delay, complete the engagement
+    setTimeout(() => {
+      if (mode === "foam") setFoamEnabled(true); else setFoamEnabled(false);
+      setPumpEngaged(true);
+      setRpm(START_RPM);
+      setCardIndex(1); // Swap to Pump Data card
+      setEngaging(null); // Reset animation state
+    }, 500);
   };
 
   const disengagePump = () => {
@@ -226,18 +206,17 @@ export default function PanelClean() {
     setPdp(0);
     audio.kill();
     setCardIndex(0);
+    setEngaging(null);
   };
 
-  // Simple PDP <-> RPM coupling (placeholder logic; replace with physics engine later)
+  // PDP <-> RPM coupling
   useEffect(() => {
     if (!pumpEngaged) { setPdp(0); return; }
-    // naive mapping for now: PDP rises with RPM and intake head
     const next = Math.round((rpm - IDLE_RPM) * 0.25 + Math.max(intakePsi, 0) * 0.2);
     setPdp(clamp(next, 0, MAX_SAFE_PDP));
   }, [rpm, intakePsi, pumpEngaged]);
 
-  // Layout helpers
-  const gridClass = `grid grid-cols-12 gap-${GRID.gap/4}`; // Tailwind gap-4 if 16px
+  const gridClass = `grid grid-cols-12 gap-${GRID.gap/4}`;
 
   return (
     <div className="relative w-full h-full min-h-[720px] text-white" style={{
@@ -245,7 +224,6 @@ export default function PanelClean() {
       backgroundSize: "cover",
       backgroundPosition: "center",
     }}>
-      {/* overlay tint for contrast */}
       <div className="absolute inset-0 bg-black/40" />
 
       {/* SETTINGS BUTTON */}
@@ -260,9 +238,8 @@ export default function PanelClean() {
       {/* PANEL GRID */}
       <div className="relative z-10 p-6 mx-auto max-w-7xl">
         <div className={gridClass}>
-          {/* ROW 1: Top Section */}
-          {/* LEFT: Card Zone (Toggle Card <-> Pump Data) - NOW col-span-3 */}
-          <div className="col-span-12 lg:col-span-3">
+          {/* LEFT: Card Zone */}
+          <div className="col-span-12 lg:col-span-5">
             <div className="rounded-2xl shadow-xl bg-white/5 border border-white/10 p-4 min-h-[260px]">
               <div className="flex items-center justify-between mb-2">
                 <button
@@ -290,6 +267,7 @@ export default function PanelClean() {
                     <ToggleCard
                       engaged={pumpEngaged}
                       foam={foamEnabled}
+                      engaging={engaging}
                       onEngageWater={() => engagePump("water")}
                       onEngageFoam={() => engagePump("foam")}
                       onDisengage={disengagePump}
@@ -303,6 +281,9 @@ export default function PanelClean() {
                       intakePsi={intakePsi}
                       setIntakePsi={setIntakePsi}
                       onDisengage={disengagePump}
+                      intakeGauge={<AnalogGauge label="Intake" unit="PSI" min={-30} max={600} value={intakePsi} />}
+                      dischargeGauge={<AnalogGauge label="Discharge" unit="PSI" min={0} max={600} value={pdp} redline={350} />}
+                      engineGauge={<AnalogGauge label="Engine" unit="RPM" min={0} max={2200} value={rpm} />}
                     />
                   </motion.div>
                 )}
@@ -310,23 +291,8 @@ export default function PanelClean() {
             </div>
           </div>
 
-          {/* CENTER: Master Gauges Section - ALWAYS VISIBLE col-span-6 */}
-          <div className="col-span-12 lg:col-span-6">
-            <MasterGaugesSection
-              intakePsi={intakePsi}
-              dischargePsi={pdp}
-              engineRpm={rpm}
-            />
-          </div>
-
-          {/* RIGHT: Pierce Control Panel Placeholder - col-span-3 */}
-          <div className="col-span-12 lg:col-span-3">
-            <PierceControlPanelPlaceholder />
-          </div>
-
-          {/* ROW 2: Center Section */}
-          {/* Crosslays/Discharges scaffold - NOW col-span-8 */}
-          <div className="col-span-12 lg:col-span-8">
+          {/* CENTER: Crosslays Section */}
+          <div className="col-span-12 lg:col-span-4">
             <div className="rounded-2xl shadow-xl bg-white/5 border border-white/10 p-4 min-h-[260px]">
               <div className="text-lg font-semibold mb-3">Crosslays</div>
               <div className="grid grid-cols-3 gap-3">
@@ -347,8 +313,8 @@ export default function PanelClean() {
             </div>
           </div>
 
-          {/* RIGHT: Levels & Misc - NOW col-span-4 */}
-          <div className="col-span-12 lg:col-span-4">
+          {/* RIGHT: Levels & Misc */}
+          <div className="col-span-12 lg:col-span-3">
             <div className="rounded-2xl shadow-xl bg-white/5 border border-white/10 p-4 min-h-[260px] flex flex-col">
               <div className="flex-1 grid grid-cols-2 gap-4">
                 <LevelBar label="WATER" gallons={waterGal} capacity={TANK_CAPACITY_GAL} colorClass="bg-sky-400" />
@@ -395,110 +361,124 @@ export default function PanelClean() {
   );
 }
 
-// ======= SUBCOMPONENTS =======================================================
-
-// Master Gauges Section - ALWAYS VISIBLE at top center
-interface MasterGaugesSectionProps {
-  intakePsi: number;
-  dischargePsi: number;
-  engineRpm: number;
-}
-
-function MasterGaugesSection({ intakePsi, dischargePsi, engineRpm }: MasterGaugesSectionProps) {
-  return (
-    <div className="rounded-2xl shadow-xl bg-white/5 border border-white/10 p-4 min-h-[260px]">
-      <div className="text-lg font-semibold mb-3 text-center">Master Gauges</div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-xl bg-white/5 border border-white/10 p-3">
-          <AnalogGauge label="Intake" unit="PSI" min={-30} max={600} value={intakePsi} />
-        </div>
-        <div className="rounded-xl bg-white/5 border border-white/10 p-3">
-          <AnalogGauge label="Discharge" unit="PSI" min={0} max={600} value={dischargePsi} redline={350} />
-        </div>
-        <div className="rounded-xl bg-white/5 border border-white/10 p-3">
-          <AnalogGauge label="Engine" unit="RPM" min={0} max={2200} value={engineRpm} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Pierce Control Panel Placeholder - Phase 5 implementation
-function PierceControlPanelPlaceholder() {
-  return (
-    <div className="rounded-2xl shadow-xl bg-white/5 border border-white/10 p-4 min-h-[260px] flex flex-col items-center justify-center">
-      <div className="text-lg font-semibold mb-2">Pierce Control Panel</div>
-      <div className="text-sm opacity-70 text-center">
-        Engage/Disengage Controls
-        <br />
-        (Phase 5)
-      </div>
-    </div>
-  );
-}
-
+// ======= TOGGLE CARD WITH HORIZONTAL LAYOUT AND GREEN FLASH =======
 interface ToggleCardProps {
   engaged: boolean;
   foam: boolean;
+  engaging: null | 'water' | 'foam';
   onEngageWater: () => void;
   onEngageFoam: () => void;
   onDisengage: () => void;
 }
 
-function ToggleCard({ engaged, foam, onEngageWater, onEngageFoam, onDisengage }: ToggleCardProps) {
+function ToggleCard({ engaged, foam, engaging, onEngageWater, onEngageFoam, onDisengage }: ToggleCardProps) {
+  const isWaterEngaging = engaging === 'water';
+  const isFoamEngaging = engaging === 'foam';
+  
   return (
-    <div className="grid grid-cols-3 gap-4">
-      <div className="col-span-1 rounded-xl bg-white/5 border border-white/10 p-3 flex flex-col items-center justify-center text-center min-h-[180px]">
-        <div className="uppercase text-[11px] tracking-wider opacity-70 mb-1">Water Pump</div>
-        <Power className={`w-9 h-9 ${engaged && !foam ? "text-emerald-400" : "text-white/70"}`} />
-        <button
-          className={`mt-3 w-full px-3 py-2 rounded-xl border ${engaged && !foam ? "bg-emerald-600/80 border-emerald-400" : "bg-white/10 border-white/20 hover:bg-white/20"}`}
+    <div>
+      {/* Horizontal 3-tile strip */}
+      <div className="flex gap-2 w-full mb-4">
+        {/* Water Pump Button */}
+        <motion.button
+          className={`
+            flex-1 rounded-xl border p-4 min-h-[140px]
+            flex flex-col items-center justify-center
+            transition-all duration-300
+            ${isWaterEngaging 
+              ? 'bg-emerald-500 border-emerald-400 text-white animate-pulse' 
+              : engaged && !foam 
+                ? 'bg-emerald-600/80 border-emerald-400' 
+                : 'bg-white/10 border-white/20 hover:bg-white/20 hover:brightness-110'
+            }
+          `}
           onClick={onEngageWater}
+          disabled={engaged || engaging !== null}
+          animate={isWaterEngaging ? { scale: [1, 1.02, 1] } : {}}
+          transition={{ duration: 0.5 }}
         >
-          {engaged && !foam ? "ENGAGED" : "ENGAGE"}
-        </button>
-      </div>
+          <Power className={`w-10 h-10 mb-2 ${(engaged && !foam) || isWaterEngaging ? "text-white" : "text-white/70"}`} />
+          <div className="uppercase text-sm font-semibold tracking-wider">
+            {isWaterEngaging ? "ENGAGED" : "Water Pump"}
+          </div>
+        </motion.button>
 
-      <div className="col-span-1 rounded-xl bg-white/5 border border-white/10 p-3 flex flex-col items-center justify-center text-center min-h-[180px]">
-        <div className="uppercase text-[11px] tracking-wider opacity-70 mb-1">OK to Pump & Roll</div>
-        <Gauge className="w-9 h-9 text-lime-400" />
-        <div className="mt-2 text-xs opacity-70">(visual only in v0.1)</div>
-      </div>
-
-      <div className="col-span-1 rounded-xl bg-white/5 border border-white/10 p-3 flex flex-col items-center justify-center text-center min-h-[180px]">
-        <div className="uppercase text-[11px] tracking-wider opacity-70 mb-1">Foam System</div>
-        <Droplet className={`w-9 h-9 ${engaged && foam ? "text-emerald-400" : "text-white/70"}`} />
+        {/* OK to Pump & Roll (Visual Only - Disabled) */}
         <button
-          className={`mt-3 w-full px-3 py-2 rounded-xl border ${engaged && foam ? "bg-emerald-600/80 border-emerald-400" : "bg-white/10 border-white/20 hover:bg-white/20"}`}
+          className="
+            flex-1 rounded-xl border p-4 min-h-[140px]
+            flex flex-col items-center justify-center
+            bg-white/5 border-white/10 opacity-50 cursor-not-allowed
+          "
+          disabled
+        >
+          <Gauge className="w-10 h-10 mb-2 text-white/40" />
+          <div className="uppercase text-sm font-semibold tracking-wider text-white/40">
+            OK to Pump & Roll
+          </div>
+          <div className="text-xs opacity-70 mt-1">(Visual Only)</div>
+        </button>
+
+        {/* Foam System Button */}
+        <motion.button
+          className={`
+            flex-1 rounded-xl border p-4 min-h-[140px]
+            flex flex-col items-center justify-center
+            transition-all duration-300
+            ${isFoamEngaging 
+              ? 'bg-emerald-500 border-emerald-400 text-white animate-pulse' 
+              : engaged && foam 
+                ? 'bg-emerald-600/80 border-emerald-400' 
+                : 'bg-white/10 border-white/20 hover:bg-white/20 hover:brightness-110'
+            }
+          `}
           onClick={onEngageFoam}
+          disabled={engaged || engaging !== null}
+          animate={isFoamEngaging ? { scale: [1, 1.02, 1] } : {}}
+          transition={{ duration: 0.5 }}
         >
-          {engaged && foam ? "FOAM READY" : "ENABLE FOAM"}
-        </button>
+          <Droplet className={`w-10 h-10 mb-2 ${(engaged && foam) || isFoamEngaging ? "text-white" : "text-white/70"}`} />
+          <div className="uppercase text-sm font-semibold tracking-wider">
+            {isFoamEngaging ? "ENGAGED" : engaged && foam ? "Foam Ready" : "Foam System"}
+          </div>
+        </motion.button>
       </div>
 
-      <div className="col-span-3">
-        <button
-          className="w-full mt-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20"
-          onClick={onDisengage}
-        >
-          Disengage Pump
-        </button>
-      </div>
+      {/* Disengage Button */}
+      <button
+        className="w-full px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
+        onClick={onDisengage}
+        disabled={!engaged || engaging !== null}
+      >
+        Disengage Pump
+      </button>
     </div>
   );
 }
 
+// ======= PUMP DATA CARD =======
 interface PumpDataCardProps {
   rpm: number;
   setRpm: (n: number) => void;
   intakePsi: number;
   setIntakePsi: (n: number) => void;
   onDisengage: () => void;
+  intakeGauge?: React.ReactNode;
+  dischargeGauge?: React.ReactNode;
+  engineGauge?: React.ReactNode;
 }
 
-function PumpDataCard({ rpm, setRpm, intakePsi, setIntakePsi, onDisengage }: PumpDataCardProps) {
+function PumpDataCard({ rpm, setRpm, intakePsi, setIntakePsi, onDisengage, intakeGauge, dischargeGauge, engineGauge }: PumpDataCardProps) {
   return (
     <div>
+      {(intakeGauge || dischargeGauge || engineGauge) && (
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {intakeGauge && <div className="rounded-xl bg-white/5 border border-white/10 p-2">{intakeGauge}</div>}
+          {dischargeGauge && <div className="rounded-xl bg-white/5 border border-white/10 p-2">{dischargeGauge}</div>}
+          {engineGauge && <div className="rounded-xl bg-white/5 border border-white/10 p-2">{engineGauge}</div>}
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl bg-white/5 border border-white/10 p-3">
           <div className="mb-2 font-medium">Pump Intake</div>
@@ -514,7 +494,7 @@ function PumpDataCard({ rpm, setRpm, intakePsi, setIntakePsi, onDisengage }: Pum
               className="w-full"
               style={{
                 height: '8px',
-                background: 'linear-gradient(to right, #10b981 0%, #10b981 ' + ((intakePsi + 10) / 210 * 100) + '%, #4b5563 ' + ((intakePsi + 10) / 210 * 100) + '%, #4b5563 100%)',
+                background: `linear-gradient(to right, #10b981 0%, #10b981 ${((intakePsi + 10) / 210 * 100)}%, #4b5563 ${((intakePsi + 10) / 210 * 100)}%, #4b5563 100%)`,
                 borderRadius: '4px',
                 outline: 'none',
                 cursor: 'pointer',
@@ -539,7 +519,7 @@ function PumpDataCard({ rpm, setRpm, intakePsi, setIntakePsi, onDisengage }: Pum
               className="w-full"
               style={{
                 height: '8px',
-                background: 'linear-gradient(to right, #10b981 0%, #10b981 ' + ((rpm - IDLE_RPM) / (2200 - IDLE_RPM) * 100) + '%, #4b5563 ' + ((rpm - IDLE_RPM) / (2200 - IDLE_RPM) * 100) + '%, #4b5563 100%)',
+                background: `linear-gradient(to right, #10b981 0%, #10b981 ${((rpm - IDLE_RPM) / (2200 - IDLE_RPM) * 100)}%, #4b5563 ${((rpm - IDLE_RPM) / (2200 - IDLE_RPM) * 100)}%, #4b5563 100%)`,
                 borderRadius: '4px',
                 outline: 'none',
                 cursor: 'pointer',
@@ -558,6 +538,7 @@ function PumpDataCard({ rpm, setRpm, intakePsi, setIntakePsi, onDisengage }: Pum
   );
 }
 
+// ======= LEVEL BAR =======
 interface LevelBarProps {
   label: string;
   gallons: number;

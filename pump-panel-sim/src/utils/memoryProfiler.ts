@@ -4,7 +4,6 @@
  */
 
 import * as PIXI from 'pixi.js';
-import * as Tone from 'tone';
 
 export interface MemoryStats {
   timestamp: number;
@@ -13,10 +12,7 @@ export interface MemoryStats {
     textureCacheSize: number;
     rendererType: string;
   };
-  tone: {
-    contextState: string;
-    activeNodes: number;
-  };
+  // Note: Tone.js removed - audio stats no longer tracked
   browser: {
     jsHeapSizeLimit?: number;
     totalJSHeapSize?: number;
@@ -35,10 +31,6 @@ export function getMemoryStats(app?: PIXI.Application): MemoryStats {
       textureCacheSize: 0,
       rendererType: 'unknown',
     },
-    tone: {
-      contextState: 'suspended',
-      activeNodes: 0,
-    },
     browser: {},
   };
 
@@ -48,16 +40,7 @@ export function getMemoryStats(app?: PIXI.Application): MemoryStats {
     stats.pixi.rendererType = app.renderer.type === 1 ? 'WebGL' : 'Canvas';
   }
 
-  // Tone.js stats - only if context exists and is safe to access
-  try {
-    const context = Tone.getContext();
-    if (context && context.state) {
-      stats.tone.contextState = context.state;
-    }
-  } catch (error) {
-    // Context may not be initialized yet - safe to ignore
-    stats.tone.contextState = 'not-started';
-  }
+  // Tone.js stats removed - no longer using Tone.js audio system
 
   // Count textures in cache
   try {
@@ -113,10 +96,7 @@ export function logMemoryStats(app?: PIXI.Application, label: string = 'Memory S
   console.log('Renderer Type:', stats.pixi.rendererType);
   console.groupEnd();
   
-  console.group('Tone.js');
-  console.log('Context State:', stats.tone.contextState);
-  console.log('Active Nodes:', stats.tone.activeNodes);
-  console.groupEnd();
+  // Tone.js stats removed - no longer using Tone.js audio system
   
   if (stats.browser.usedJSHeapSize) {
     console.group('Browser Memory');
