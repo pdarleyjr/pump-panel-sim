@@ -68,17 +68,47 @@ const PhotorealGauge: React.FC<PhotorealGaugeProps> = ({
   const needleAngle = startAngle + (normalizedValue * sweepAngle);
   
   const isOverRedline = redline !== undefined && value >= redline;
+  // Preload image to avoid repeated mount/unmount fetches which can lead to aborted requests
+  const [imgLoaded, setImgLoaded] = React.useState(false);
+  const [imgError, setImgError] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!imageSrc) {
+      setImgLoaded(false);
+      return;
+    }
+    let cancelled = false;
+    const img = new Image();
+    img.decoding = 'async';
+    img.loading = 'lazy';
+    img.onload = () => {
+      if (!cancelled) setImgLoaded(true);
+    };
+    img.onerror = () => {
+      if (!cancelled) setImgError(true);
+    };
+    img.src = imageSrc;
+    return () => { cancelled = true; };
+  }, [imageSrc]);
 
   return (
     <div className="relative inline-block">
       <div className={`relative ${sizeMap[size]}`}>
-        {/* Background gauge image if provided */}
-        {imageSrc && (
-          <img 
-            src={imageSrc} 
+        {/* Background gauge image if provided (render only after preload) */}
+        {imageSrc && imgLoaded && !imgError && (
+          <img
+            src={imageSrc}
             alt={label}
             className="absolute inset-0 w-full h-full object-contain"
+            loading="lazy"
+            decoding="async"
           />
+        )}
+        {imageSrc && !imgLoaded && !imgError && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">Loading…</div>
+        )}
+        {imageSrc && imgError && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-red-400">Image failed to load</div>
         )}
         
         {/* Fallback SVG gauge if no image */}
@@ -156,7 +186,7 @@ const PhotorealGauge: React.FC<PhotorealGaugeProps> = ({
           </svg>
         )}
         
-        {/* Needle - positioned to work with PNG gauge backgrounds */}
+  {/* Needle - positioned to work with PNG gauge backgrounds */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 200">
           <g transform={`rotate(${needleAngle} 100 100)`}>
             {/* Needle shadow for depth */}
