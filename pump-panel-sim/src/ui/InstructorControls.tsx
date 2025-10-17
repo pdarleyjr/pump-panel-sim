@@ -1,17 +1,7 @@
 import { useState } from 'react';
 import { useSimulation } from '@/sim/SimulationContext';
 import { broadcast, type InstructorMessage } from '@/net/ws';
-import { RippleEffect } from './effects/RippleEffect';
 import './InstructorControls.css';
-
-// Import overlay content for manual testing
-import {
-  CAVITATION_OVERLAY,
-  OVERPRESSURE_OVERLAY,
-  OVERHEATING_OVERLAY,
-  TANK_EMPTY_OVERLAY,
-  HOSE_BURST_OVERLAY,
-} from './overlays/overlayContent';
 
 interface InstructorControlsProps {
   connected: boolean;
@@ -145,7 +135,6 @@ export function InstructorControls({ connected, room }: InstructorControlsProps)
             onClick={() => triggerScenario('HOSE_BURST')}
             title="Force selected discharge line to burst"
           >
-            <RippleEffect variant="dark" />
             💥 Hose Burst
           </button>
           <button
@@ -153,7 +142,6 @@ export function InstructorControls({ connected, room }: InstructorControlsProps)
             onClick={() => triggerScenario('INTAKE_FAILURE')}
             title="Drop intake pressure to simulate hydrant failure"
           >
-            <RippleEffect variant="dark" />
             🚰 Intake Failure
           </button>
           <button
@@ -161,7 +149,6 @@ export function InstructorControls({ connected, room }: InstructorControlsProps)
             onClick={() => triggerScenario('TANK_LEAK')}
             title="Accelerate tank water depletion"
           >
-            <RippleEffect variant="dark" />
             💧 Tank Leak
           </button>
           <button
@@ -169,7 +156,6 @@ export function InstructorControls({ connected, room }: InstructorControlsProps)
             onClick={() => triggerScenario('GOVERNOR_FAILURE')}
             title="Disable automatic governor control"
           >
-            <RippleEffect variant="dark" />
             ⚠️ Governor Fail
           </button>
         </div>
@@ -189,7 +175,6 @@ export function InstructorControls({ connected, room }: InstructorControlsProps)
             }}
             aria-label="Test overpressure overlay by setting high throttle"
           >
-            <RippleEffect variant="dark" />
             <span aria-hidden="true">🔴</span> Test Overpressure
           </button>
           <button
@@ -200,7 +185,6 @@ export function InstructorControls({ connected, room }: InstructorControlsProps)
             }}
             aria-label="Test cavitation overlay by dropping intake pressure"
           >
-            <RippleEffect variant="dark" />
             <span aria-hidden="true">⚠️</span> Test Cavitation
           </button>
           <button
@@ -211,7 +195,6 @@ export function InstructorControls({ connected, room }: InstructorControlsProps)
             }}
             aria-label="Test tank empty overlay. Would trigger when tank depletes"
           >
-            <RippleEffect variant="dark" />
             <span aria-hidden="true">💧</span> Test Tank Empty
           </button>
         </div>

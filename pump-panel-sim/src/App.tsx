@@ -1,10 +1,12 @@
 /**
  * Main application component
+ * 
+ * ⚠️ WARNING: Only Panel.tsx is rendered here. Do not edit legacy panel files.
+ * All UI changes must be made to src/ui/Panel.tsx to be reflected in the simulator.
  */
 
 import React from 'react';
 import Panel from './ui/Panel';
-// import Panel from './ui/PanelTest';  // TEMPORARY TEST
 import './App.css';
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {

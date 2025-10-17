@@ -4,6 +4,9 @@ import { Settings, Power, Droplet, Volume2, VolumeX } from 'lucide-react';
 /**
  * COMPLETE REWRITE - Fire Pump Panel Simulator
  * This is the ACTUAL implementation with all promised features
+ * 
+ * ⚠️ WARNING: This is the ONLY active panel file. All UI changes must be made here.
+ * Legacy panel files have been removed. Do not create new panel variants without updating App.tsx.
  */
 
 // ============ TYPES ============
@@ -308,7 +311,7 @@ export default function Panel() {
   
   // Tank levels
   const [tankLevel, setTankLevel] = useState(720);
-  const [foamLevel, setFoamLevel] = useState(30);
+  const [foamLevel] = useState(30); // TODO: Implement foam system (currently unused)
   
   // Discharge states
   const [discharges, setDischarges] = useState<Record<DischargeId, DischargeState>>({
@@ -366,7 +369,7 @@ export default function Panel() {
       setDischarges(prev => {
         const updated = { ...prev };
         
-        Object.entries(updated).forEach(([key, discharge]) => {
+        Object.entries(updated).forEach(([, discharge]) => {
           if (discharge.open) {
             // Gradually approach set pressure
             const diff = discharge.setPsi - discharge.actualPsi;
@@ -397,7 +400,7 @@ export default function Panel() {
     }, 100);
     
     return () => clearInterval(interval);
-  }, [pumpEngaged, source]);
+  }, [pumpEngaged, source, discharges]);
   
   // Toggle discharge line
   const toggleDischarge = (id: DischargeId) => {
