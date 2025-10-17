@@ -303,7 +303,6 @@ const DischargeLine: React.FC<DischargeLineProps> = ({
 
 // ============ MAIN PANEL COMPONENT ============
 export default function Panel() {
-  console.log('Panel component rendering');
   const [engineRunning, setEngineRunning] = useState(false);
   const [pumpEngaged, setPumpEngaged] = useState(false);
   const [source, setSource] = useState<Source>('tank');
@@ -393,14 +392,17 @@ export default function Panel() {
       
       // Consume water if pumping
       if (source === 'tank') {
-        const totalFlow = Object.values(discharges)
-          .reduce((sum, d) => sum + d.flow, 0);
-        setTankLevel(prev => Math.max(0, prev - totalFlow / 60)); // GPM to GPS
+        setDischarges(currentDischarges => {
+          const totalFlow = Object.values(currentDischarges)
+            .reduce((sum, d) => sum + d.flow, 0);
+          setTankLevel(prev => Math.max(0, prev - totalFlow / 60)); // GPM to GPS
+          return currentDischarges;
+        });
       }
     }, 100);
     
     return () => clearInterval(interval);
-  }, [pumpEngaged, source, discharges]);
+  }, [pumpEngaged, source]);
   
   // Toggle discharge line
   const toggleDischarge = (id: DischargeId) => {
