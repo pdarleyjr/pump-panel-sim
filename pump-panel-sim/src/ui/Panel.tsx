@@ -333,6 +333,7 @@ const DischargeLine: React.FC<DischargeLineProps> = ({
 
 // ============ MAIN PANEL COMPONENT ============
 export default function Panel() {
+  console.log('Panel component rendering');
   const [engineRunning, setEngineRunning] = useState(false);
   const [pumpEngaged, setPumpEngaged] = useState(false);
   const [source, setSource] = useState<Source>('tank');
