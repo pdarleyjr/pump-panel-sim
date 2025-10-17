@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import { Settings, Power, Droplet, Volume2, VolumeX } from 'lucide-react';
 
 /**
@@ -225,7 +224,6 @@ const PhotorealGauge: React.FC<PhotorealGaugeProps> = ({
 
 // ============ DISCHARGE LINE COMPONENT ============
 interface DischargeLineProps {
-  id: DischargeId;
   label: string;
   state: DischargeState;
   onToggle: () => void;
@@ -234,7 +232,6 @@ interface DischargeLineProps {
 }
 
 const DischargeLine: React.FC<DischargeLineProps> = ({
-  id,
   label,
   state,
   onToggle,
@@ -303,6 +300,7 @@ const DischargeLine: React.FC<DischargeLineProps> = ({
 
 // ============ MAIN PANEL COMPONENT ============
 export default function Panel() {
+  console.log('Panel component rendering');
   const [engineRunning, setEngineRunning] = useState(false);
   const [pumpEngaged, setPumpEngaged] = useState(false);
   const [source, setSource] = useState<Source>('tank');
@@ -599,7 +597,6 @@ export default function Panel() {
             {DISCHARGE_LINES.map(line => (
               <DischargeLine
                 key={line.id}
-                id={line.id}
                 label={line.label}
                 state={discharges[line.id]}
                 onToggle={() => toggleDischarge(line.id)}
