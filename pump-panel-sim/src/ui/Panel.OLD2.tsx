@@ -59,9 +59,8 @@ const PhotorealGauge: React.FC<PhotorealGaugeProps> = ({
     large: 'w-64 h-64'
   };
 
-  // Adjusted for real gauge image - typically 240-270 degree sweep
-  const sweepAngle = 240; // degrees of sweep for real gauges
-  const startAngle = -210; // starting angle (7 o'clock position)
+  const sweepAngle = 270; // degrees of sweep
+  const startAngle = -225; // starting angle
   const normalizedValue = Math.max(0, Math.min(1, (value - min) / (max - min)));
   const needleAngle = startAngle + (normalizedValue * sweepAngle);
   
@@ -135,7 +134,7 @@ const PhotorealGauge: React.FC<PhotorealGaugeProps> = ({
               const rad = angle * Math.PI / 180;
               const x = 100 + 50 * Math.cos(rad);
               const y = 100 + 50 * Math.sin(rad);
-              const scaleValue = min + (i / 5) * (max - min);
+              const value = min + (i / 5) * (max - min);
               
               return (
                 <text
@@ -147,78 +146,48 @@ const PhotorealGauge: React.FC<PhotorealGaugeProps> = ({
                   textAnchor="middle"
                   dominantBaseline="middle"
                 >
-                  {Math.round(scaleValue)}
+                  {Math.round(value)}
                 </text>
               );
             })}
           </svg>
         )}
         
-        {/* Needle - positioned to work with PNG gauge backgrounds */}
+        {/* Needle */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 200">
           <g transform={`rotate(${needleAngle} 100 100)`}>
-            {/* Needle shadow for depth */}
             <line
               x1="100"
               y1="100"
               x2="100"
-              y2="35"
-              stroke="rgba(0,0,0,0.3)"
-              strokeWidth="4"
-              strokeLinecap="round"
-              transform="translate(2, 2)"
-            />
-            {/* Main needle */}
-            <line
-              x1="100"
-              y1="100"
-              x2="100"
-              y2="35"
-              stroke={isOverRedline ? '#ff0000' : '#ff3333'}
+              y2="30"
+              stroke={isOverRedline ? '#ff0000' : '#ffffff'}
               strokeWidth="3"
               strokeLinecap="round"
-            />
-            {/* Center cap */}
-            <circle
-              cx="100"
-              cy="100"
-              r="10"
-              fill="#222"
-              stroke="#444"
-              strokeWidth="1"
+              filter="drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
             />
             <circle
               cx="100"
               cy="100"
-              r="6"
-              fill={isOverRedline ? '#ff0000' : '#ff3333'}
+              r="8"
+              fill={isOverRedline ? '#ff0000' : '#ffffff'}
+              filter="drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
             />
           </g>
         </svg>
         
-        {/* Digital readout - positioned to not overlap with gauge face */}
-        {!imageSrc && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 px-2 py-1 rounded">
-            <div className="text-green-400 font-mono text-sm font-bold">
-              {value.toFixed(0)} {unit}
-            </div>
+        {/* Digital readout */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 px-2 py-1 rounded">
+          <div className="text-green-400 font-mono text-sm font-bold">
+            {value.toFixed(0)} {unit}
           </div>
-        )}
+        </div>
       </div>
       
       {/* Label */}
       <div className="text-center mt-2 text-white/80 text-sm font-medium">
         {label}
       </div>
-      
-      {/* Digital readout for image gauges - below the gauge */}
-      {imageSrc && (
-        <div className="text-center mt-1">
-          <span className="text-green-400 font-mono text-sm font-bold bg-black/60 px-2 py-0.5 rounded">
-            {value.toFixed(0)} {unit}
-          </span>
-        </div>
-      )}
     </div>
   );
 };
@@ -279,7 +248,7 @@ const DischargeLine: React.FC<DischargeLineProps> = ({
         />
       </div>
       
-      {/* Line gauge with photoreal background */}
+      {/* Line gauge */}
       <PhotorealGauge
         value={state.actualPsi}
         min={0}
@@ -288,7 +257,6 @@ const DischargeLine: React.FC<DischargeLineProps> = ({
         unit="PSI"
         size="small"
         redline={maxPsi * 0.9}
-        imageSrc="/assets/crosslay_analog_gauge.png"
       />
       
       {/* Flow indicator */}
@@ -562,7 +530,6 @@ export default function Panel() {
               label="Intake Pressure"
               unit="PSI"
               size="large"
-              imageSrc="/gauges/intake-gauge.png"
             />
             
             <PhotorealGauge
@@ -573,7 +540,6 @@ export default function Panel() {
               unit="PSI"
               size="large"
               redline={350}
-              imageSrc="/gauges/discharge-gauge.png"
             />
             
             <PhotorealGauge
@@ -584,7 +550,6 @@ export default function Panel() {
               unit="RPM"
               size="large"
               redline={2200}
-              imageSrc="/gauges/rpm-gauge.png"
             />
           </div>
         </div>
